@@ -5,6 +5,9 @@ export interface User {
   avatar?: string;
   role: "professor" | "aluno";
   institution?: string;
+  guardianName?: string;
+  group?: string;
+  subjects?: string[];
 }
 
 export interface Article {

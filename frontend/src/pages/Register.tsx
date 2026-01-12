@@ -56,7 +56,7 @@ function Register() {
     }
   };
 
-  const inputClasses = "w-full bg-gray-50 pl-12 pr-4 py-3 rounded-xl text-sm text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none font-medium border border-transparent focus:bg-white transition-all";
+  const inputClasses = "w-full bg-gray-50 dark:bg-gray-700 pl-12 pr-4 py-3 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 outline-none font-medium border border-transparent focus:bg-white dark:focus:bg-gray-600 transition-all";
 
   return (
     <Layout hideNav>
@@ -72,7 +72,7 @@ function Register() {
          </div>
 
          {/* Form Section */}
-         <div className="flex-1 bg-gray-50 md:bg-white relative overflow-y-auto">
+         <div className="flex-1 bg-gray-50 dark:bg-gray-900 md:bg-white dark:md:bg-gray-900 relative overflow-y-auto transition-colors duration-300">
             {/* Header Mobile Only */}
             <div className="bg-purple-600 px-8 pt-6 pb-20 rounded-b-[3rem] shadow-lg relative md:hidden">
                 <button onClick={() => navigate(-1)} className="absolute top-6 left-6 text-white p-2 rounded-full bg-white/20 active:bg-white/30">
@@ -86,27 +86,27 @@ function Register() {
 
             {/* Form Container */}
             <div className="px-6 -mt-16 md:mt-0 md:px-12 md:py-10 relative z-10 h-full flex flex-col justify-center">
-                <div className="bg-white rounded-3xl p-6 md:p-0 shadow-xl md:shadow-none border border-gray-100 md:border-none">
+                <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-0 shadow-xl md:shadow-none border border-gray-100 dark:border-none">
                     
                     {/* Desktop Header */}
                     <div className="hidden md:block mb-8">
-                        <Link to="/" className="text-gray-400 hover:text-gray-600 flex items-center gap-2 mb-4 text-sm font-bold"><FaArrowLeft /> Voltar</Link>
-                        <h2 className="text-3xl font-bold text-gray-800">Criar Conta</h2>
+                        <Link to="/" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-2 mb-4 text-sm font-bold"><FaArrowLeft /> Voltar</Link>
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Criar Conta</h2>
                     </div>
 
                     {/* Role Switcher */}
-                    <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+                    <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-xl mb-6">
                         <button 
                             type="button"
                             onClick={() => setRole("aluno")}
-                            className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${role === "aluno" ? "bg-white text-purple-600 shadow-sm" : "text-gray-400"}`}
+                            className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${role === "aluno" ? "bg-white dark:bg-gray-600 text-purple-600 dark:text-purple-300 shadow-sm" : "text-gray-400 dark:text-gray-400"}`}
                         >
                             Aluno
                         </button>
                         <button 
                             type="button"
                             onClick={() => setRole("professor")}
-                            className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${role === "professor" ? "bg-white text-purple-600 shadow-sm" : "text-gray-400"}`}
+                            className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${role === "professor" ? "bg-white dark:bg-gray-600 text-purple-600 dark:text-purple-300 shadow-sm" : "text-gray-400 dark:text-gray-400"}`}
                         >
                             Professor
                         </button>
@@ -141,7 +141,7 @@ function Register() {
 
                         {/* Specific Fields */}
                         {role === "aluno" ? (
-                            <div className="space-y-4 pt-2 border-t border-gray-100 animate-fade-in">
+                            <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-700 animate-fade-in">
                                 <div className="relative">
                                     <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                     <input name="guardianName" onChange={handleChange} placeholder="Nome do Responsável" className={inputClasses} required />
@@ -152,7 +152,7 @@ function Register() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="space-y-4 pt-2 border-t border-gray-100 animate-fade-in">
+                            <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-700 animate-fade-in">
                                 <div className="relative">
                                     <FaBook className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                     <input name="subjects" onChange={handleChange} placeholder="Matérias (sep. por vírgula)" className={inputClasses} required />
@@ -171,7 +171,7 @@ function Register() {
                 </div>
                 
                 <div className="mt-6 text-center">
-                    <p className="text-gray-500 text-sm">Já tem uma conta? <Link to="/" className="text-purple-600 font-bold hover:underline">Faça Login</Link></p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Já tem uma conta? <Link to="/" className="text-purple-600 dark:text-purple-400 font-bold hover:underline">Faça Login</Link></p>
                 </div>
             </div>
          </div>

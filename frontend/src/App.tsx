@@ -1,6 +1,7 @@
 import React from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import useAuth from "./hooks/useAuth";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -14,7 +15,7 @@ import Settings from "./pages/Settings";
 
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
-  if (isLoading) return <div className="flex h-screen items-center justify-center text-purple-600">Carregando...</div>;
+  if (isLoading) return <div className="flex h-screen items-center justify-center text-purple-600 dark:bg-gray-900">Carregando...</div>;
   if (!isAuthenticated) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
@@ -41,7 +42,9 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <ThemeProvider>
+        <AppRoutes />
+      </ThemeProvider>
     </AuthProvider>
   );
 }

@@ -28,7 +28,6 @@ const injectStyles = () => {
           scrollbar-width: none;  /* Firefox */
       }
       body {
-        background-color: #f3f4f6;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         overscroll-behavior-y: none;
         -webkit-tap-highlight-color: transparent;
@@ -37,6 +36,8 @@ const injectStyles = () => {
         padding-bottom: env(safe-area-inset-bottom);
         -webkit-text-size-adjust: 100%;
       }
+      /* Dark Mode Base Styles handled in index.html or Tailwind */
+      
       input, textarea, .prose p, .selectable {
         user-select: text;
         -webkit-user-select: text;

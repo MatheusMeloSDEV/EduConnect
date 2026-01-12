@@ -42,9 +42,23 @@ app.post('/api/upload/image', (req, res) => {
     });
 });
 
+// Root Route for Deployment Verification
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: "EDUConnect Backend is running successfully.",
+    endpoints: {
+      health: "/api/health",
+      users: "/api/users",
+      articles: "/api/articles"
+    }
+  });
+});
+
 // Health Check
 app.get('/api/health', (req, res) => res.json({ success: true, message: "API EDUConnect Backend Running" }));
 
-app.listen(PORT, () => {
+// Listen on 0.0.0.0 to ensure Docker container exposes the port correctly
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 EDUConnect Backend running at http://localhost:${PORT}`);
 });

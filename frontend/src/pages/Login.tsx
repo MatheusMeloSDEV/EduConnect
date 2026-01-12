@@ -2,15 +2,27 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Layout from "../components/Layout";
-import { FaGraduationCap, FaEnvelope, FaLock, FaArrowRight, FaInfoCircle } from "react-icons/fa";
+import { FaGraduationCap, FaEnvelope, FaLock, FaArrowRight, FaUserGraduate, FaChalkboardTeacher } from "react-icons/fa";
 
 function Login() {
-  // Pre-filled for easy testing, but allows editing
+  // Pre-filled for easy testing
   const [email, setEmail] = useState("aluno@fiap.com.br");
   const [password, setPassword] = useState("123456");
   const { login } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'aluno' | 'professor'>('aluno');
+
+  const setDemoLogin = (role: 'aluno' | 'professor') => {
+    setActiveTab(role);
+    if (role === 'aluno') {
+      setEmail("aluno@fiap.com.br");
+      setPassword("123456");
+    } else {
+      setEmail("ana@fiap.com.br");
+      setPassword("123456");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,11 +53,29 @@ function Login() {
         </div>
 
         {/* Login Form Section */}
-        <div className="w-full md:w-[500px] bg-white rounded-t-3xl md:rounded-none p-8 pb-12 shadow-2xl md:shadow-none animate-slide-up md:animate-none flex flex-col justify-center -mt-6 md:mt-0 relative z-10">
+        <div className="w-full md:w-[500px] bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-none p-8 pb-12 shadow-2xl md:shadow-none animate-slide-up md:animate-none flex flex-col justify-center -mt-6 md:mt-0 relative z-10 transition-colors duration-300">
           
           <div className="max-w-sm mx-auto w-full">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Bem-vindo(a)!</h2>
-            <p className="text-gray-500 mb-8">Insira seus dados para acessar sua conta.</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Bem-vindo(a)!</h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">Selecione seu perfil para entrar.</p>
+
+            {/* Demo Toggles */}
+            <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-xl mb-6">
+                <button 
+                    type="button"
+                    onClick={() => setDemoLogin('aluno')}
+                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'aluno' ? "bg-white dark:bg-gray-600 text-purple-600 dark:text-purple-300 shadow-sm" : "text-gray-400 dark:text-gray-400"}`}
+                >
+                    <FaUserGraduate /> Aluno
+                </button>
+                <button 
+                    type="button"
+                    onClick={() => setDemoLogin('professor')}
+                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'professor' ? "bg-white dark:bg-gray-600 text-purple-600 dark:text-purple-300 shadow-sm" : "text-gray-400 dark:text-gray-400"}`}
+                >
+                    <FaChalkboardTeacher /> Professor
+                </button>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="relative">
@@ -55,7 +85,7 @@ function Login() {
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-gray-50 pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-purple-500 text-gray-800 font-medium transition-all"
+                  className="w-full bg-gray-50 dark:bg-gray-700 pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-purple-500 text-gray-800 dark:text-white font-medium transition-all"
                 />
               </div>
               <div className="relative">
@@ -65,12 +95,12 @@ function Login() {
                   placeholder="Senha"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-gray-50 pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-purple-500 text-gray-800 font-medium transition-all"
+                  className="w-full bg-gray-50 dark:bg-gray-700 pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-purple-500 text-gray-800 dark:text-white font-medium transition-all"
                 />
               </div>
               
               <div className="flex justify-end">
-                  <a href="#" className="text-sm text-purple-600 font-bold hover:underline">Esqueceu a senha?</a>
+                  <a href="#" className="text-sm text-purple-600 dark:text-purple-400 font-bold hover:underline">Esqueceu a senha?</a>
               </div>
 
               <button
@@ -86,7 +116,7 @@ function Login() {
               </button>
             </form>
             <div className="mt-8 text-center">
-              <p className="text-gray-500 text-sm">Não tem conta? <Link to="/register" className="text-purple-600 font-bold hover:underline">Cadastre-se</Link></p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Não tem conta? <Link to="/register" className="text-purple-600 dark:text-purple-400 font-bold hover:underline">Cadastre-se</Link></p>
             </div>
           </div>
         </div>
