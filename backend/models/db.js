@@ -1,17 +1,18 @@
-// --- IN-MEMORY DATABASE ---
-// This acts as your "MongoDB". 
-// In a real app, these would be Mongoose Schemas connecting to a real DB.
+
+// --- BANCO DE DADOS EM MEMÓRIA (Legado/Referência) ---
+// Isto atua como um "MongoDB" simulado. 
+// Em uma aplicação real, estes seriam Schemas do Mongoose conectando a um DB real.
 
 const USERS = [
   {
     _id: "user-1",
     fullName: "Estudante Demo",
     email: "aluno@fiap.com.br",
-    password: "123", // Matches Login.tsx
+    password: "123", // Corresponde ao Login.tsx
     role: "aluno",
-    institution: "FIAP School",
+    institution: "Escola FIAP",
     age: 20,
-    guardianName: "Parents",
+    guardianName: "Pais",
     group: "3A",
     avatar: "https://ui-avatars.com/api/?name=Estudante+Demo&background=random&color=fff&background=7c3aed",
     active: true,
@@ -23,7 +24,7 @@ const USERS = [
     email: "ana@fiap.com.br",
     password: "123",
     role: "professor",
-    institution: "FIAP School",
+    institution: "Escola FIAP",
     age: 35,
     subjects: ["Matemática", "Física"],
     avatar: "https://ui-avatars.com/api/?name=Prof+Ana&background=random",

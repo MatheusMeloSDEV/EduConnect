@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import useAuth from "../hooks/useAuth";
@@ -13,9 +14,9 @@ function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get popular items
+    // Obter itens populares
     articleService.getPopularArticles().then(res => setPopular(res.data));
-    // Also get general articles for the vertical feed
+    // Também obter artigos gerais para o feed vertical
     articleService.getArticles().then(res => setRecent(res.data.slice(0, 5)));
   }, []);
 
@@ -23,9 +24,9 @@ function Home() {
 
   return (
     <Layout>
-      {/* Welcome Header */}
+      {/* Cabeçalho de Boas-vindas */}
       <div className={`bg-gradient-to-r ${isProfessor ? 'from-indigo-800 to-purple-800' : 'from-purple-700 to-purple-600'} p-6 md:p-12 md:rounded-2xl shadow-sm relative overflow-hidden mb-6 md:min-h-[200px] flex flex-col justify-end transition-colors`}>
-        {/* Background Pattern */}
+        {/* Padrão de Fundo */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-row items-center justify-between gap-4 mt-12 md:mt-0">
@@ -55,7 +56,7 @@ function Home() {
 
       <div className="pb-10">
         
-        {/* Horizontal Scroll Section (Trending) - Mobile App Style */}
+        {/* Seção de Rolagem Horizontal (Em Alta) - Estilo Mobile App */}
         <div className="mb-8">
             <div className="flex items-center justify-between px-6 mb-4">
                 <div className="flex items-center gap-2">
@@ -64,7 +65,7 @@ function Home() {
                 </div>
             </div>
 
-            {/* Changed gap-4 to gap-5 and using padding to help with snap alignment */}
+            {/* Gap alterado para gap-5 e uso de padding para ajudar no alinhamento do snap */}
             <div className="smooth-scroll-x flex overflow-x-auto pb-4 px-6 gap-5 no-scrollbar snap-x snap-mandatory scroll-pl-6">
                 {popular.map((article) => (
                     <div 
@@ -86,7 +87,7 @@ function Home() {
             </div>
         </div>
 
-        {/* Vertical Feed (Recent) */}
+        {/* Feed Vertical (Recentes) */}
         <div className="px-6">
             <div className="flex items-center justify-between mb-4">
                 <h2 className="font-bold text-gray-800 dark:text-gray-100 text-lg">Novidades</h2>

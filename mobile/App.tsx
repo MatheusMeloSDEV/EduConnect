@@ -1,16 +1,18 @@
+
 import React, { useState } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, StatusBar as RNStatusBar, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { StatusBar } from 'expo-status-bar';
 
+// Componente principal do aplicativo mobile que gerencia a WebView e configuração de IP
 export default function App() {
-  // We need the local IP address because 'localhost' on the phone refers to the phone itself, not the computer.
-  // We provide a simple UI to enter this IP.
+  // Precisamos do endereço IP local porque 'localhost' no telefone refere-se ao próprio telefone, não ao computador.
+  // Fornecemos uma UI simples para inserir este IP.
   const [url, setUrl] = useState(''); 
-  const [inputUrl, setInputUrl] = useState('http://192.168.1.X:3001'); // Example placeholder
+  const [inputUrl, setInputUrl] = useState('http://192.168.1.X:3001'); // Placeholder de exemplo
   const [isConnected, setIsConnected] = useState(false);
 
-  // Configuration Screen
+  // Tela de Configuração
   if (!isConnected) {
     return (
       <SafeAreaView style={styles.configContainer}>
@@ -48,27 +50,27 @@ export default function App() {
     );
   }
 
-  // WebView Screen
+  // Tela da WebView
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="auto" />
       <WebView 
         source={{ uri: url }}
         style={styles.webview}
-        // Allow file access for Avatar uploads
+        // Permitir acesso a arquivos para uploads de Avatar
         allowFileAccessFromFileURLs={true}
         allowUniversalAccessFromFileURLs={true}
         startInLoadingState={true}
         onError={(syntheticEvent) => {
             const { nativeEvent } = syntheticEvent;
             console.warn('WebView error: ', nativeEvent);
-            // Optional: Alert the user or go back to config
+            // Opcional: Alertar o usuário ou voltar para config
             alert("Erro ao conectar. Verifique o IP e se o servidor está rodando.");
             setIsConnected(false);
         }}
       />
       
-      {/* Hidden button in bottom right corner to reset IP config if needed */}
+      {/* Botão oculto no canto inferior direito para resetar config de IP se necessário */}
       <TouchableOpacity 
         style={styles.resetButton} 
         onLongPress={() => setIsConnected(false)}
@@ -89,7 +91,7 @@ const styles = StyleSheet.create({
   },
   configContainer: {
     flex: 1,
-    backgroundColor: '#7c3aed', // Purple brand color
+    backgroundColor: '#7c3aed', // Cor roxa da marca
     justifyContent: 'center',
   },
   content: {

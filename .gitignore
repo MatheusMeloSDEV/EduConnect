@@ -36,5 +36,3 @@ android/
 ios/
 
 Dockerfile
-
-package-lock.json

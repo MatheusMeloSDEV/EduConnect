@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { Article } from "../types";
@@ -53,7 +54,7 @@ function Articles() {
       </div>
 
       <div className="px-6 md:px-0 pb-24">
-        {/* Responsive Grid: 1 -> 2 -> 3 -> 4 */}
+        {/* Grid Responsivo: 1 -> 2 -> 3 -> 4 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
             {filtered.map(article => (
             <div 
@@ -61,7 +62,7 @@ function Articles() {
                 onClick={() => navigate(`/articles/${article._id}`)}
                 className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 group hover:shadow-lg hover:border-purple-200 dark:hover:border-purple-900 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full"
             >
-                {/* Increased image height to h-64 (256px) on desktop */}
+                {/* Altura da imagem aumentada para h-64 (256px) no desktop */}
                 <div className="relative h-48 md:h-64 overflow-hidden">
                    <img src={article.imageUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                    <div className="absolute top-3 left-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-purple-700 dark:text-purple-400 shadow-sm">
@@ -91,7 +92,7 @@ function Articles() {
         </div>
       </div>
 
-      {/* Floating Action Button (Mobile Only) - Only for Professors */}
+      {/* Botão de Ação Flutuante (Apenas Mobile) - Apenas para Professores */}
       {isProfessor && (
         <button 
           onClick={() => navigate('/articles/create')}

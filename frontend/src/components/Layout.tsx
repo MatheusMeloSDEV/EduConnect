@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaHome, FaUser, FaCompass, FaGraduationCap, FaPen, FaCog } from "react-icons/fa";
@@ -13,7 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
   const { user } = useAuth();
   const isActive = (path: string) => location.pathname === path;
 
-  // Special layout for Auth pages (Login/Register)
+  // Layout especial para páginas de Autenticação (Login/Registro)
   if (hideNav) {
     return (
       <div className="min-h-screen bg-white md:bg-gray-100 dark:bg-gray-900 dark:md:bg-gray-900 flex items-center justify-center transition-colors duration-300">
@@ -24,11 +25,11 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
     );
   }
 
-  // Dashboard Layout
+  // Layout do Painel
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 pb-[80px] md:pb-0 overflow-x-hidden transition-colors duration-300"> {/* Prevent body horizontal scroll */}
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 pb-[80px] md:pb-0 overflow-x-hidden transition-colors duration-300"> {/* Prevenir rolagem horizontal do corpo */}
       
-      {/* Desktop Sidebar (Fixed, 256px width) */}
+      {/* Barra Lateral Desktop (Fixa, largura 256px) */}
       <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 fixed h-full z-30 shadow-sm transition-colors duration-300">
         <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
@@ -57,10 +58,10 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
         </div>
       </aside>
 
-      {/* Main Content Wrapper */}
+      {/* Wrapper do Conteúdo Principal */}
       <div className="flex-1 flex flex-col md:ml-64 transition-all duration-300 min-h-screen w-full relative">
         
-        {/* Mobile Top Bar (Native App Feel) */}
+        {/* Barra Superior Mobile (Sensação de App Nativo) */}
         <header className="md:hidden sticky top-0 z-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-700 pt-safe px-4 h-[calc(56px+env(safe-area-inset-top))] flex items-center justify-center shadow-sm transition-colors duration-300">
           <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 pt-2">
              <FaGraduationCap size={22} />
@@ -70,9 +71,9 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
         
         <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden">
           {/* 
-             Container Strategy:
-             - Mobile: Full width.
-             - Desktop: Max width 7xl (1280px) centered.
+             Estratégia de Container:
+             - Mobile: Largura total.
+             - Desktop: Largura máxima 7xl (1280px) centralizada.
           */}
           <div className="w-full h-full md:max-w-7xl md:mx-auto md:p-8">
              <div className="h-full">
@@ -82,7 +83,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation (Fixed & Safe Area Aware) */}
+      {/* Navegação Inferior Mobile (Fixa e Ciente da Área Segura) */}
       {!hideNav && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 px-6 py-2 flex justify-between items-center z-50 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] transition-colors duration-300">
           <MobileLink to="/home" icon={FaHome} label="Home" active={isActive('/home')} />

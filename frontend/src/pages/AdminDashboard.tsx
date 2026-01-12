@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import useAuth from "../hooks/useAuth";
@@ -64,7 +65,7 @@ function AdminDashboard() {
       <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Painel Administrativo</h1>
         
-        {/* Tabs */}
+        {/* Abas */}
         <div className="flex gap-2 overflow-x-auto pb-4 mb-4">
             <TabButton 
                 active={activeTab === 'posts'} 
@@ -86,7 +87,7 @@ function AdminDashboard() {
             />
         </div>
 
-        {/* Search & Action Bar */}
+        {/* Barra de Busca e Ação */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
             <div className="relative w-full md:w-auto flex-1 max-w-md">
                 <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -109,13 +110,13 @@ function AdminDashboard() {
             )}
         </div>
 
-        {/* Content Area */}
+        {/* Área de Conteúdo */}
         {loading ? (
             <div className="text-center py-10 text-gray-500">Carregando dados...</div>
         ) : (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                 {activeTab === 'posts' ? (
-                    // Posts List
+                    // Lista de Postagens
                     <div className="divide-y divide-gray-100 dark:divide-gray-700">
                         {filteredArticles.length === 0 && <div className="p-6 text-center text-gray-500">Nenhum post encontrado.</div>}
                         {filteredArticles.map(article => (
@@ -139,7 +140,7 @@ function AdminDashboard() {
                         ))}
                     </div>
                 ) : (
-                    // Users List
+                    // Lista de Usuários
                     <div className="divide-y divide-gray-100 dark:divide-gray-700">
                         {filteredUsers.length === 0 && <div className="p-6 text-center text-gray-500">Nenhum usuário encontrado.</div>}
                         {filteredUsers.map(u => (

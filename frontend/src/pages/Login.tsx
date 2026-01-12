@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
@@ -5,23 +6,18 @@ import Layout from "../components/Layout";
 import { FaGraduationCap, FaEnvelope, FaLock, FaArrowRight, FaUserGraduate, FaChalkboardTeacher } from "react-icons/fa";
 
 function Login() {
-  // Pre-filled for easy testing
-  const [email, setEmail] = useState("aluno@fiap.com.br");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'aluno' | 'professor'>('aluno');
 
-  const setDemoLogin = (role: 'aluno' | 'professor') => {
+  const handleRoleSelect = (role: 'aluno' | 'professor') => {
     setActiveTab(role);
-    if (role === 'aluno') {
-      setEmail("aluno@fiap.com.br");
-      setPassword("123456");
-    } else {
-      setEmail("ana@fiap.com.br");
-      setPassword("123456");
-    }
+    // Limpar campos ao trocar de aba para evitar confusão, sem preencher valores padrão
+    setEmail("");
+    setPassword("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +37,7 @@ function Login() {
     <Layout hideNav>
       <div className="flex flex-col md:flex-row h-full">
         
-        {/* Mobile Header / Desktop Left Panel */}
+        {/* Cabeçalho Mobile / Painel Esquerdo Desktop */}
         <div className="flex-1 flex flex-col justify-center items-center gap-6 bg-gradient-to-br from-purple-700 to-purple-500 text-white p-10 min-h-[40vh] md:min-h-full">
           <div className="bg-white/20 p-6 rounded-full backdrop-blur-sm shadow-xl animate-bounce-slow">
             <FaGraduationCap size={48} className="text-white" />
@@ -52,25 +48,25 @@ function Login() {
           </div>
         </div>
 
-        {/* Login Form Section */}
+        {/* Seção do Formulário de Login */}
         <div className="w-full md:w-[500px] bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-none p-8 pb-12 shadow-2xl md:shadow-none animate-slide-up md:animate-none flex flex-col justify-center -mt-6 md:mt-0 relative z-10 transition-colors duration-300">
           
           <div className="max-w-sm mx-auto w-full">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Bem-vindo(a)!</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-6">Selecione seu perfil para entrar.</p>
 
-            {/* Demo Toggles */}
+            {/* Alternadores de Perfil (Visual apenas, pois o login é validado pelo email) */}
             <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-xl mb-6">
                 <button 
                     type="button"
-                    onClick={() => setDemoLogin('aluno')}
+                    onClick={() => handleRoleSelect('aluno')}
                     className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'aluno' ? "bg-white dark:bg-gray-600 text-purple-600 dark:text-purple-300 shadow-sm" : "text-gray-400 dark:text-gray-400"}`}
                 >
                     <FaUserGraduate /> Aluno
                 </button>
                 <button 
                     type="button"
-                    onClick={() => setDemoLogin('professor')}
+                    onClick={() => handleRoleSelect('professor')}
                     className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'professor' ? "bg-white dark:bg-gray-600 text-purple-600 dark:text-purple-300 shadow-sm" : "text-gray-400 dark:text-gray-400"}`}
                 >
                     <FaChalkboardTeacher /> Professor

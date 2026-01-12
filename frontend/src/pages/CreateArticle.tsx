@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
@@ -7,7 +8,7 @@ import { FaArrowLeft, FaCheck, FaImage } from "react-icons/fa";
 
 function CreateArticle() {
   const navigate = useNavigate();
-  const { id } = useParams(); // Check if we are in edit mode
+  const { id } = useParams(); // Verificar se estamos no modo de edição
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -21,6 +22,9 @@ function CreateArticle() {
   });
 
   useEffect(() => {
+    // Atualizar título da página (aba do navegador)
+    document.title = id ? "Editar Artigo | EDUConnect" : "Novo Artigo | EDUConnect";
+
     if (user && user.role !== 'professor') {
       alert("Apenas professores podem criar artigos.");
       navigate('/home');
@@ -54,7 +58,7 @@ function CreateArticle() {
   };
 
   const handleBack = () => {
-     // Explicitly navigate based on context to avoid getting stuck
+     // Navegar explicitamente com base no contexto para evitar ficar preso
      if (isEditing && id) {
          navigate(`/articles/${id}`);
      } else {
@@ -86,8 +90,8 @@ function CreateArticle() {
         targetId = res.data._id;
       }
 
-      // Use replace: true to prevent the history stack from growing with the 'Edit' page
-      // This ensures 'Back' from the Detail page goes to the List, not back to Edit.
+      // Usar replace: true para evitar que a pilha de histórico cresça com a página 'Edit'
+      // Isso garante que 'Voltar' da página de Detalhe vá para a Lista, não de volta para Editar.
       navigate(`/articles/${targetId}`, { replace: true });
     } catch (error) {
       console.error(error);
@@ -100,98 +104,107 @@ function CreateArticle() {
   if (!user || user.role !== 'professor') return null;
 
   return (
-    <div className="flex justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 min-h-screen relative shadow-2xl flex flex-col">
-        <div className="bg-white dark:bg-gray-800 px-6 py-4 flex items-center gap-4 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-20">
-          <button 
-            type="button" 
-            onClick={handleBack} 
-            className="text-gray-600 dark:text-gray-300 p-2 -ml-2 rounded-full active:bg-gray-100 dark:active:bg-gray-700"
-          >
-            <FaArrowLeft />
-          </button>
-          <h1 className="text-lg font-bold text-gray-800 dark:text-white">{isEditing ? "Editar Artigo" : "Novo Artigo"}</h1>
+    <Layout>
+      <div className="p-6">
+        <div className="flex items-center gap-4 mb-8">
+            <button 
+                onClick={handleBack} 
+                className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
+            >
+                <FaArrowLeft />
+            </button>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+                {isEditing ? "Editar Artigo" : "Novo Artigo"}
+            </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 flex-1 overflow-y-auto">
-          <div>
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Título</label>
-            <input
-              name="headline"
-              value={formData.headline}
-              onChange={handleChange}
-              placeholder="Ex: Introdução ao Python"
-              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold"
-              required
-            />
-          </div>
-
-          <div>
-             <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">URL da Imagem de Capa</label>
-             <div className="relative">
-                <FaImage className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-4xl mx-auto">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Título */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Título</label>
                 <input
-                  name="imageUrl"
-                  value={formData.imageUrl}
+                  name="headline"
+                  value={formData.headline}
                   onChange={handleChange}
-                  placeholder="https://..."
-                  className="w-full bg-gray-50 dark:bg-gray-700 pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Ex: Introdução ao Python"
+                  className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold"
                   required
                 />
-             </div>
-          </div>
+              </div>
 
-          <div>
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Resumo</label>
-            <textarea
-              name="summary"
-              value={formData.summary}
-              onChange={handleChange}
-              placeholder="Uma breve descrição do conteúdo..."
-              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none"
-              required
-            />
-          </div>
+              {/* URL da Imagem */}
+              <div>
+                 <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">URL da Imagem de Capa</label>
+                 <div className="relative">
+                    <FaImage className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      name="imageUrl"
+                      value={formData.imageUrl}
+                      onChange={handleChange}
+                      placeholder="https://..."
+                      className="w-full bg-gray-50 dark:bg-gray-700 pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      required
+                    />
+                 </div>
+              </div>
 
-          <div>
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Conteúdo</label>
-            <textarea
-              name="body"
-              value={formData.body}
-              onChange={handleChange}
-              placeholder="Escreva seu artigo aqui..."
-              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-64 resize-none"
-              required
-            />
-          </div>
+              {/* Resumo */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Resumo</label>
+                <textarea
+                  name="summary"
+                  value={formData.summary}
+                  onChange={handleChange}
+                  placeholder="Uma breve descrição do conteúdo..."
+                  className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none"
+                  required
+                />
+              </div>
 
-          <div>
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Tags (Separadas por vírgula)</label>
-            <input
-              name="tags"
-              value={formData.tags}
-              onChange={handleChange}
-              placeholder="Ex: Programação, Tech, Dicas"
-              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
+              {/* Conteúdo */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Conteúdo</label>
+                <textarea
+                  name="body"
+                  value={formData.body}
+                  onChange={handleChange}
+                  placeholder="Escreva seu artigo aqui..."
+                  className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-64 resize-none"
+                  required
+                />
+              </div>
 
-          <div className="pb-8">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-purple-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-70"
-            >
-              {loading ? "Carregando..." : (
-                <>
-                  <FaCheck /> {isEditing ? "Salvar Alterações" : "Publicar Artigo"}
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+              {/* Tags */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Tags (Separadas por vírgula)</label>
+                <input
+                  name="tags"
+                  value={formData.tags}
+                  onChange={handleChange}
+                  placeholder="Ex: Programação, Tech, Dicas"
+                  className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              {/* Botão de Envio */}
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-purple-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-70"
+                >
+                  {loading ? "Carregando..." : (
+                    <>
+                      <FaCheck /> {isEditing ? "Salvar Alterações" : "Publicar Artigo"}
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
 

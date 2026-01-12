@@ -1,7 +1,9 @@
+
 const Review = require('../models/Review');
 const Article = require('../models/Article');
 const { ReviewLike } = require('../models/Interaction');
 
+// Retorna todos os comentários de um artigo específico
 exports.getReviewsByArticle = async (req, res) => {
     try {
         const { id } = req.params;
@@ -35,6 +37,7 @@ exports.getReviewsByArticle = async (req, res) => {
     }
 };
 
+// Cria um novo comentário em um artigo
 exports.createReview = async (req, res) => {
     try {
         const { message, articleId, parentReviewId } = req.body;
@@ -59,6 +62,7 @@ exports.createReview = async (req, res) => {
     }
 };
 
+// Alterna o like em um comentário
 exports.toggleReviewLike = async (req, res) => {
     try {
         const reviewId = req.params.id;
@@ -97,6 +101,7 @@ exports.toggleReviewLike = async (req, res) => {
     }
 };
 
+// Remove um comentário (Apenas o autor)
 exports.deleteReview = async (req, res) => {
     try {
         const review = await Review.findById(req.params.id);

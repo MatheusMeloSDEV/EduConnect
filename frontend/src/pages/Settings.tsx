@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
@@ -37,12 +38,12 @@ function Settings() {
     try {
       const payload: any = {
         ...formData,
-        subjects // Will be ignored by backend if role is not professor, but good to send
+        subjects // Será ignorado pelo backend se a role não for professor, mas é bom enviar
       };
 
       const res = await authService.updateProfile(payload);
       if (res.success) {
-          updateUser(res.data); // Update global context
+          updateUser(res.data); // Atualizar contexto global
           alert("Perfil atualizado com sucesso!");
       }
     } catch (error) {

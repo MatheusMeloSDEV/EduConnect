@@ -1,6 +1,7 @@
 
 const User = require('../models/User');
 
+// Registra um novo usuário no sistema (Aluno ou Professor)
 exports.register = async (req, res) => {
     try {
         const { fullName, email, password, role, institution, age, guardianName, group, subjects, avatar } = req.body;
@@ -10,7 +11,7 @@ exports.register = async (req, res) => {
             return res.status(400).json({ success: false, message: "Email já está em uso" });
         }
 
-        // Create user (password will be hashed by pre-save hook in model)
+        // Criar usuário (senha será criptografada pelo hook pre-save no modelo)
         const newUser = new User({
             fullName, email, password, role, institution, age,
             avatar: avatar || `https://ui-avatars.com/api/?name=${fullName.replace(' ', '+')}&background=random`
@@ -26,12 +27,12 @@ exports.register = async (req, res) => {
         await newUser.save();
 
         const publicUser = newUser.toPublicJSON ? newUser.toPublicJSON() : newUser.toObject();
-        // Simple mock token generation (Use JWT in production)
+        // Geração simples de token simulado (Use JWT em produção)
         const token = `mock-token-${newUser._id}-${Date.now()}`;
 
         res.status(201).json({ success: true, message: "Usuário registrado", data: { user: publicUser, token } });
     } catch (error) {
-        // Handle Mongoose validation errors nicely
+        // Tratar erros de validação do Mongoose de forma amigável
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(val => val.message);
             return res.status(400).json({ success: false, message: messages.join(', ') });
@@ -40,17 +41,18 @@ exports.register = async (req, res) => {
     }
 };
 
+// Realiza o login do usuário verificando email e senha
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        // Select password explicitly if 'select: false' is set in model, though our updated model might have it true or require +password
+        // Selecionar senha explicitamente se 'select: false' estiver definido no modelo
         const user = await User.findOne({ email }).select('+password');
 
         if (!user) {
             return res.status(401).json({ success: false, message: "Credenciais inválidas" });
         }
 
-        // Use the model's comparison method
+        // Usar o método de comparação do modelo
         const isMatch = await user.comparePassword(password);
 
         if (isMatch) {
@@ -65,6 +67,7 @@ exports.login = async (req, res) => {
     }
 };
 
+// Obtém os dados do perfil do usuário autenticado
 exports.getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
@@ -75,6 +78,7 @@ exports.getProfile = async (req, res) => {
     }
 };
 
+// Atualiza os dados do perfil do usuário autenticado
 exports.updateProfile = async (req, res) => {
     try {
         const { fullName, institution, age, guardianName, group, subjects, avatar } = req.body;
@@ -97,6 +101,7 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+// Altera a senha do usuário autenticado
 exports.changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
@@ -110,7 +115,7 @@ exports.changePassword = async (req, res) => {
             return res.status(400).json({ success: false, message: "Senha atual incorreta" });
         }
         
-        // Setting the password triggers the pre-save hook to hash it
+        // Definir a senha aciona o hook pre-save para criptografá-la
         user.password = newPassword;
         await user.save();
         
@@ -120,8 +125,9 @@ exports.changePassword = async (req, res) => {
     }
 };
 
-// --- Admin Methods ---
+// --- Métodos de Admin ---
 
+// (Admin) Lista todos os usuários cadastrados, com filtro opcional por função
 exports.getAllUsers = async (req, res) => {
     try {
         const { role } = req.query;
@@ -135,6 +141,7 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
+// (Admin) Busca um usuário específico pelo ID
 exports.getUserById = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -145,23 +152,25 @@ exports.getUserById = async (req, res) => {
     }
 };
 
+// (Admin) Cria um novo usuário através do painel administrativo
 exports.createUserByAdmin = async (req, res) => {
-    // Reusing register logic but authenticated
+    // Reutilizando lógica de registro mas autenticado
     return exports.register(req, res);
 };
 
+// (Admin) Atualiza os dados de um usuário específico
 exports.updateUserByAdmin = async (req, res) => {
     try {
         const userId = req.params.id;
         const updates = req.body;
         
-        // Ensure password is hashed if provided (handled by pre-findOneAndUpdate hook in User model)
-        // We do NOT delete updates.password here anymore.
+        // A senha será criptografada se fornecida (manipulado pelo hook pre-findOneAndUpdate no modelo User)
+        // Não removemos updates.password aqui.
 
         const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true });
         if(!updatedUser) return res.status(404).json({success: false, message: "Usuário não encontrado"});
 
-        // Sanitize the returned user object (remove password hash)
+        // Higienizar o objeto de usuário retornado (remover hash da senha)
         const publicUser = updatedUser.toPublicJSON ? updatedUser.toPublicJSON() : updatedUser;
 
         res.json({ success: true, message: "Usuário atualizado", data: publicUser });
@@ -170,10 +179,11 @@ exports.updateUserByAdmin = async (req, res) => {
     }
 };
 
+// (Admin) Remove um usuário do sistema
 exports.deleteUser = async (req, res) => {
     try {
         await User.findByIdAndDelete(req.params.id);
-        // In a real app, delete their articles/comments/likes too
+        // Em um app real, deletar também seus artigos/comentários/likes
         res.json({ success: true, message: "Usuário removido" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

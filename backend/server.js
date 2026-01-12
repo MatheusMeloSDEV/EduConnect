@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -5,32 +6,32 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 
 const app = express();
-// Default to 3010 to match documentation/instructions
+// Padrão para 3010 para corresponder à documentação/instruções
 const PORT = process.env.PORT || 3010;
-// Use Environment Variable or fallback to the provided string
+// Usa Variável de Ambiente ou fallback para a string fornecida
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://mathmsantos:math-tech-challenge@techchallenge-backend.a8onrmr.mongodb.net/?retryWrites=true&w=majority&appName=techchallenge-backend";
 
-// Connect to MongoDB with better error handling
+// Conectar ao MongoDB com melhor tratamento de erro
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch(err => console.error('❌ MongoDB Connection Error:', err));
+  .then(() => console.log('✅ Conectado ao MongoDB Atlas'))
+  .catch(err => console.error('❌ Erro na Conexão MongoDB:', err));
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Route Imports
+// Importações de Rotas
 const userRoutes = require('./routes/userRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 
-// API Routes
+// Rotas da API
 app.use('/api/users', userRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/reviews', reviewRoutes);
 
-// Mock Upload Route
+// Rota de Upload Simulado
 app.post('/api/upload/image', (req, res) => {
     res.json({
         success: true,
@@ -42,11 +43,11 @@ app.post('/api/upload/image', (req, res) => {
     });
 });
 
-// Root Route for Deployment Verification
+// Rota Raiz para Verificação de Deploy
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: "EDUConnect Backend is running successfully.",
+    message: "EDUConnect Backend rodando com sucesso.",
     endpoints: {
       health: "/api/health",
       users: "/api/users",
@@ -55,31 +56,31 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health Check
-app.get('/api/health', (req, res) => res.json({ success: true, message: "API EDUConnect Backend Running" }));
+// Verificação de Saúde
+app.get('/api/health', (req, res) => res.json({ success: true, message: "API EDUConnect Backend Rodando" }));
 
-// Handle 404
+// Lidar com 404
 app.use((req, res) => {
     res.status(404).json({ success: false, message: "Rota não encontrada" });
 });
 
-// Global Error Handler
+// Manipulador de Erro Global
 app.use((err, req, res, next) => {
-    console.error("Unhandled Error:", err);
+    console.error("Erro Não Tratado:", err);
     res.status(500).json({ success: false, message: "Erro interno no servidor" });
 });
 
-// Prevent crash on unhandled rejection
+// Prevenir crash em rejeição não tratada
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    // Don't exit process in dev environment to keep server alive
+    console.error('Rejeição Não Tratada em:', promise, 'motivo:', reason);
+    // Não sair do processo em ambiente dev para manter o servidor ativo
 });
 
 process.on('uncaughtException', (error) => {
-    console.error('Uncaught Exception:', error);
+    console.error('Exceção Não Capturada:', error);
 });
 
-// Listen on 0.0.0.0 to ensure Docker container exposes the port correctly
+// Escutar em 0.0.0.0 para garantir que o container Docker exponha a porta corretamente
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n🚀 EDUConnect Backend running at http://localhost:${PORT}`);
+  console.log(`\n🚀 EDUConnect Backend rodando em http://localhost:${PORT}`);
 });

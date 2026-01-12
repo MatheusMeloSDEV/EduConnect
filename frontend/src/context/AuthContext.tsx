@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 import { User } from "../types";
 import { authService } from "../services/api";
@@ -13,6 +14,7 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Provedor de contexto que gerencia o estado global de autenticação
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,30 +27,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
+  // Função para realizar login e salvar estado
   const login = async (email: string, password: string) => {
-    // We use the new loginWithPassword method in api.ts
+    // Usamos o novo método loginWithPassword no api.ts
     const response = await authService.loginWithPassword(email, password);
     if (response.success) {
-      // The backend returns { user: ..., token: ... }
-      // We store the whole object in user state or split it.
-      // For simplicity in this demo, let's merge token into user object for localStorage
+      // O backend retorna { user: ..., token: ... }
+      // Armazenamos o objeto completo no estado ou separamos.
+      // Para simplicidade, mesclamos o token no objeto user para o localStorage
       const userWithToken = { ...response.data.user, token: response.data.token };
       setUser(userWithToken);
       localStorage.setItem("user", JSON.stringify(userWithToken));
     }
   };
 
+  // Função para realizar logout e limpar estado
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
   };
 
   const updateUser = (userData: User) => {
-      // Merge new data with existing user data (preserving token if not present in update)
+      // Mesclar novos dados com dados existentes (preservando token se não estiver presente na atualização)
       const currentUser = user;
       const updatedUser = { ...currentUser, ...userData };
       
-      // Ensure token persists if backend doesn't return it on update
+      // Garantir que o token persista se o backend não retorná-lo na atualização
       if (currentUser?.token && !updatedUser.token) {
           updatedUser.token = currentUser.token;
       }

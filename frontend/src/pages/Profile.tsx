@@ -1,3 +1,4 @@
+
 import React from "react";
 import Layout from "../components/Layout";
 import useAuth from "../hooks/useAuth";
@@ -36,7 +37,7 @@ function Profile() {
           <p className="text-gray-500 dark:text-gray-400 text-sm">{user.institution}</p>
         </div>
 
-        {/* Role Specific Info Box */}
+        {/* Caixa de Informações Específicas da Função */}
         <div className="w-full bg-white dark:bg-gray-800 rounded-2xl p-5 mb-6 shadow-sm border border-gray-100 dark:border-gray-700">
            <h3 className="font-bold text-gray-800 dark:text-white mb-4 text-sm uppercase tracking-wider opacity-70">
               {isProfessor ? 'Informações Acadêmicas' : 'Dados do Aluno'}

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Article, Comment } from "../types";
@@ -18,7 +19,7 @@ function ArticleDetail() {
     if (id) {
       articleService.getArticleById(id).then(res => {
           setArticle(res.data);
-          // Initialize liked state from backend response
+          // Inicializar estado de curtida a partir da resposta do backend
           setLiked(!!res.data.userUpvoted);
       });
       commentService.getCommentsByArticle(id).then(res => setComments(res.data));
@@ -43,7 +44,7 @@ function ArticleDetail() {
             return c;
         }));
     } catch (error) {
-        console.error("Error liking comment:", error);
+        console.error("Erro ao curtir comentário:", error);
     }
   };
 
@@ -55,7 +56,7 @@ function ArticleDetail() {
   };
 
   const handleBack = () => {
-    // If we have history, go back. Otherwise fallback to /articles
+    // Se tivermos histórico, voltar. Caso contrário, fallback para /articles
     if (window.history.state && window.history.state.idx > 0) {
         navigate(-1);
     } else {
@@ -70,10 +71,10 @@ function ArticleDetail() {
   return (
     <div className="min-h-screen bg-white md:bg-gray-50 dark:bg-gray-900 pb-20 md:pb-10 transition-colors duration-300">
       
-      {/* Desktop Wrapper: Standard centered blog layout */}
+      {/* Wrapper Desktop: Layout de blog centralizado padrão */}
       <div className="w-full md:max-w-5xl mx-auto bg-white dark:bg-gray-900 md:shadow-sm md:rounded-b-2xl md:min-h-screen transition-colors duration-300">
         
-        {/* Header Image - Increased height to 500px on desktop */}
+        {/* Imagem de Cabeçalho - Altura aumentada para 500px no desktop */}
         <div className="relative h-72 md:h-[500px] w-full group">
           <img src={article.imageUrl} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent h-40 opacity-80" />
@@ -95,10 +96,10 @@ function ArticleDetail() {
           )}
         </div>
 
-        {/* Content Body */}
+        {/* Corpo do Conteúdo */}
         <div className="px-6 md:px-20 py-8 md:py-16">
           
-          {/* Metadata */}
+          {/* Metadados */}
           <div className="flex items-center gap-4 mb-6">
             <span className="text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
               {article.tags?.[0] || 'Geral'}
@@ -110,7 +111,7 @@ function ArticleDetail() {
 
           <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-8 leading-tight tracking-tight">{article.headline}</h1>
 
-          {/* Author Bar */}
+          {/* Barra do Autor */}
           <div className="flex items-center justify-between border-y border-gray-100 dark:border-gray-800 py-6 mb-10">
             <div className="flex items-center gap-4">
                <img src={article.writer?.avatar || "https://ui-avatars.com/api/?name=Unknown"} className="w-12 h-12 rounded-full ring-2 ring-gray-100 dark:ring-gray-700" />
@@ -135,12 +136,12 @@ function ArticleDetail() {
             </button>
           </div>
 
-          {/* Article Text */}
+          {/* Texto do Artigo */}
           <div className="prose prose-lg md:prose-xl prose-purple dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed font-serif md:font-sans">
             <p className="whitespace-pre-wrap">{article.body}</p>
           </div>
 
-          {/* Comments Section */}
+          {/* Seção de Comentários */}
           <div className="mt-16 pt-10 border-t border-gray-100 dark:border-gray-800">
             <h3 className="font-bold text-2xl text-gray-900 dark:text-white mb-8 flex items-center gap-3">
                 Comentários <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm px-2.5 py-0.5 rounded-full font-medium">{comments.length}</span>
@@ -151,7 +152,7 @@ function ArticleDetail() {
                 <img 
                   src={user?.avatar || "https://ui-avatars.com/api/?name=User"} 
                   className="w-10 h-10 rounded-full flex-shrink-0 object-cover border border-gray-200 dark:border-gray-700" 
-                  alt="My Avatar"
+                  alt="Meu Avatar"
                 />
                 <div className="flex-1 relative">
                     <textarea 
@@ -172,7 +173,7 @@ function ArticleDetail() {
                 </div>
             </div>
 
-            {/* List */}
+            {/* Lista */}
             <div className="space-y-6">
               {comments.map(c => (
                 <div key={c._id} className="flex gap-4">

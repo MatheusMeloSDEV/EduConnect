@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Layout from "../components/Layout";
@@ -15,10 +16,10 @@ function Register() {
     password: "",
     institution: "",
     age: "",
-    avatar: "", // Added avatar field
-    guardianName: "", // For student
-    group: "",       // For student
-    subjects: ""     // For professor (comma separated)
+    avatar: "", // Campo avatar adicionado
+    guardianName: "", // Para aluno
+    group: "",       // Para aluno
+    subjects: ""     // Para professor (separado por vírgula)
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +38,7 @@ function Register() {
         institution: formData.institution,
         age: parseInt(formData.age),
         role: role,
-        // Use provided avatar or fallback to auto-generated one
+        // Usar avatar fornecido ou fallback para um gerado automaticamente
         avatar: formData.avatar || `https://ui-avatars.com/api/?name=${formData.fullName}&background=random`
       };
 
@@ -64,7 +65,7 @@ function Register() {
     <Layout hideNav>
       <div className="flex-1 flex flex-col md:flex-row h-full">
          
-         {/* Desktop Side Panel */}
+         {/* Painel Lateral Desktop */}
          <div className="hidden md:flex w-5/12 bg-purple-600 items-center justify-center p-12 text-white relative overflow-hidden">
              <div className="absolute top-0 left-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1000&auto=format&fit=crop')] bg-cover opacity-20 mix-blend-overlay"></div>
              <div className="relative z-10">
@@ -73,9 +74,9 @@ function Register() {
              </div>
          </div>
 
-         {/* Form Section */}
+         {/* Seção do Formulário */}
          <div className="flex-1 bg-gray-50 dark:bg-gray-900 md:bg-white dark:md:bg-gray-900 relative overflow-y-auto transition-colors duration-300">
-            {/* Header Mobile Only */}
+            {/* Cabeçalho Apenas Mobile */}
             <div className="bg-purple-600 px-8 pt-6 pb-20 rounded-b-[3rem] shadow-lg relative md:hidden">
                 <button onClick={() => navigate(-1)} className="absolute top-6 left-6 text-white p-2 rounded-full bg-white/20 active:bg-white/30">
                     <FaArrowLeft />
@@ -86,17 +87,17 @@ function Register() {
                 </div>
             </div>
 
-            {/* Form Container */}
+            {/* Container do Formulário */}
             <div className="px-6 -mt-16 md:mt-0 md:px-12 md:py-10 relative z-10 h-full flex flex-col justify-center">
                 <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-0 shadow-xl md:shadow-none border border-gray-100 dark:border-none">
                     
-                    {/* Desktop Header */}
+                    {/* Cabeçalho Desktop */}
                     <div className="hidden md:block mb-8">
                         <Link to="/" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-2 mb-4 text-sm font-bold"><FaArrowLeft /> Voltar</Link>
                         <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Criar Conta</h2>
                     </div>
 
-                    {/* Role Switcher */}
+                    {/* Alternador de Papel (Role) */}
                     <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-xl mb-6">
                         <button 
                             type="button"
@@ -115,7 +116,7 @@ function Register() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Common Fields */}
+                        {/* Campos Comuns */}
                         <div className="space-y-4">
                             <div className="relative">
                                 <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -129,7 +130,7 @@ function Register() {
                                 <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input name="password" type="password" onChange={handleChange} placeholder="Senha" className={inputClasses} required />
                             </div>
-                             {/* New Avatar Field */}
+                             {/* Novo Campo de Avatar */}
                              <div className="relative">
                                 <FaImage className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input name="avatar" onChange={handleChange} placeholder="URL do Avatar (Opcional)" className={inputClasses} />
@@ -146,7 +147,7 @@ function Register() {
                             </div>
                         </div>
 
-                        {/* Specific Fields */}
+                        {/* Campos Específicos */}
                         {role === "aluno" ? (
                             <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-700 animate-fade-in">
                                 <div className="relative">

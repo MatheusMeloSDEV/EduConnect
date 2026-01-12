@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
@@ -13,7 +14,7 @@ function AdminUserForm() {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   
-  // Default to role param or default to student
+  // Padrão para parâmetro de role ou padrão para aluno
   const [role, setRole] = useState<"aluno" | "professor">(roleQuery === 'professor' ? 'professor' : 'aluno');
 
   const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ function AdminUserForm() {
             setFormData({
                 fullName: u.fullName,
                 email: u.email,
-                password: "", // Keep empty on edit unless changing
+                password: "", // Manter vazio na edição, a menos que altere
                 institution: u.institution || "",
                 age: u.age?.toString() || "",
                 avatar: u.avatar || "",
@@ -83,7 +84,7 @@ function AdminUserForm() {
           await authService.updateUserByAdmin(id, payload);
           alert("Usuário atualizado!");
       } else {
-          // New user needs password
+          // Novo usuário precisa de senha
           if(!formData.password) {
               alert("Senha é obrigatória para novos usuários");
               setLoading(false);
@@ -115,7 +116,7 @@ function AdminUserForm() {
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-2xl mx-auto">
-            {/* Role Switcher (Only on Create) */}
+            {/* Alternador de Papel (Apenas na Criação) */}
             {!isEditing && (
                 <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-xl mb-6">
                     <button 
@@ -168,7 +169,7 @@ function AdminUserForm() {
                     </div>
                 </div>
 
-                {/* Specific Fields */}
+                {/* Campos Específicos */}
                 {role === "aluno" ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-100 dark:border-gray-700">
                         <div className="relative">

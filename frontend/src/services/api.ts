@@ -1,26 +1,27 @@
+
 import { User, Article, Comment, LoginResponse, ApiResponse } from "../types";
 
-// Safe Environment Variable Access
+// Acesso Seguro a Variáveis de Ambiente
 const getEnvVar = (key: string) => {
   try {
-    // Check for Vite/ESM environment
-    // Cast import.meta to any to avoid TS error: Property 'env' does not exist on type 'ImportMeta'
+    // Verificar ambiente Vite/ESM
+    // Converter import.meta para any para evitar erro TS: Property 'env' does not exist on type 'ImportMeta'
     if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env[key]) {
       return (import.meta as any).env[key];
     }
   } catch (e) {
-    // Ignore error
+    // Ignorar erro
   }
   return undefined;
 };
 
-// Use the hosted backend URL by default
-// If VITE_API_URL is provided in .env, use that instead (e.g. for local dev overrides)
+// Usar a URL do backend hospedado por padrão
+// Se VITE_API_URL for fornecida no .env, usar essa (ex: para overrides de dev local)
 const API_URL = getEnvVar('VITE_API_URL') 
   ? `${getEnvVar('VITE_API_URL')}/api`
   : "https://backend-techchalenge-main.onrender.com/api";
 
-// Helper to get headers with JWT token
+// Auxiliar para obter headers com token JWT
 const getHeaders = () => {
   const userStr = localStorage.getItem("user");
   const token = userStr ? JSON.parse(userStr).token : null;
@@ -30,26 +31,27 @@ const getHeaders = () => {
   };
 };
 
-// Helper to handle API responses standardly with better error checking
+// Função auxiliar para tratar respostas da API e erros HTTP
 async function handleResponse<T>(promise: Promise<Response>): Promise<T> {
   const res = await promise;
   
-  // Check if response is JSON
+  // Verificar se a resposta é JSON
   const contentType = res.headers.get("content-type");
   if (contentType && contentType.indexOf("application/json") !== -1) {
     const json = await res.json();
     if (!res.ok) {
-        throw new Error(json.message || `HTTP Error ${res.status}`);
+        throw new Error(json.message || `Erro HTTP ${res.status}`);
     }
     return json;
   } else {
-    // If not JSON, it's likely an HTML error page (404/500 from proxy or server)
+    // Se não for JSON, provavelmente é uma página de erro HTML (404/500 do proxy ou servidor)
     const text = await res.text();
-    console.error("Non-JSON API Response:", text.substring(0, 200)); // Log first 200 chars
+    console.error("Resposta API não-JSON:", text.substring(0, 200)); // Logar primeiros 200 chars
     throw new Error(`Erro na API (${res.status}): A resposta não é JSON. Verifique a conexão com ${API_URL}`);
   }
 }
 
+// Serviço responsável pelas chamadas relacionadas à autenticação e usuários
 export const authService = {
   async login(email: string): Promise<LoginResponse> {
     return this.loginWithPassword(email, "123456");
@@ -101,7 +103,7 @@ export const authService = {
     );
   },
 
-  // Admin Methods
+  // Métodos de Admin
   async getAllUsers(role?: string): Promise<ApiResponse<User[]>> {
     const url = role ? `${API_URL}/users?role=${role}` : `${API_URL}/users`;
     return handleResponse<ApiResponse<User[]>>(
@@ -139,6 +141,7 @@ export const authService = {
   }
 };
 
+// Serviço responsável pelas chamadas relacionadas aos artigos
 export const articleService = {
   async getArticles(search?: string): Promise<ApiResponse<Article[]>> {
     const url = search 
@@ -163,11 +166,11 @@ export const articleService = {
   },
 
   async getArticlesByAuthor(userId: string): Promise<ApiResponse<Article[]>> {
-    // Fetch all articles (with a higher limit) and filter client-side since 
-    // the backend endpoint for author filtering might not be exposed directly.
+    // Buscar todos os artigos (com um limite maior) e filtrar no cliente, pois
+    // o endpoint do backend para filtragem por autor pode não estar exposto diretamente.
     const res = await fetch(`${API_URL}/articles?limit=100`, { headers: getHeaders() });
     
-    // Manual check here because we process data before returning
+    // Verificação manual aqui porque processamos os dados antes de retornar
     const contentType = res.headers.get("content-type");
     if (!contentType || contentType.indexOf("application/json") === -1) {
         throw new Error("Erro API: Resposta não é JSON.");
@@ -176,7 +179,7 @@ export const articleService = {
     const json = await res.json();
     
     if (!res.ok) {
-       throw new Error(json.message || `HTTP Error ${res.status}`);
+       throw new Error(json.message || `Erro HTTP ${res.status}`);
     }
 
     if (json.success && Array.isArray(json.data)) {
@@ -227,6 +230,7 @@ export const articleService = {
   }
 };
 
+// Serviço responsável pelas chamadas relacionadas aos comentários
 export const commentService = {
   async getCommentsByArticle(id: string): Promise<ApiResponse<Comment[]>> {
     return handleResponse<ApiResponse<Comment[]>>(

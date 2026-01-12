@@ -1,6 +1,8 @@
+
 const Article = require('../models/Article');
 const { ArticleUpvote } = require('../models/Interaction');
 
+// Retorna uma lista paginada de artigos, com suporte a busca e filtros
 exports.getAllArticles = async (req, res) => {
     try {
         const { page = 1, limit = 10, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
@@ -58,6 +60,7 @@ exports.getAllArticles = async (req, res) => {
     }
 };
 
+// Retorna os artigos com maior número de curtidas
 exports.getPopularArticles = async (req, res) => {
     try {
         const articles = await Article.find()
@@ -71,6 +74,7 @@ exports.getPopularArticles = async (req, res) => {
     }
 };
 
+// Busca os detalhes de um artigo específico pelo ID
 exports.getArticleById = async (req, res) => {
     try {
         const article = await Article.findById(req.params.id)
@@ -97,6 +101,7 @@ exports.getArticleById = async (req, res) => {
     }
 };
 
+// Cria um novo artigo (Apenas professores)
 exports.createArticle = async (req, res) => {
     try {
         if (req.user.role !== 'professor') {
@@ -121,6 +126,7 @@ exports.createArticle = async (req, res) => {
     }
 };
 
+// Atualiza um artigo existente (Apenas o autor ou admin)
 exports.updateArticle = async (req, res) => {
     try {
         const article = await Article.findById(req.params.id);
@@ -140,6 +146,7 @@ exports.updateArticle = async (req, res) => {
     }
 };
 
+// Remove um artigo do sistema
 exports.deleteArticle = async (req, res) => {
     try {
         const article = await Article.findById(req.params.id);
@@ -158,6 +165,7 @@ exports.deleteArticle = async (req, res) => {
     }
 };
 
+// Alterna o status de "curtida" (upvote) em um artigo
 exports.toggleUpvote = async (req, res) => {
     try {
         const articleId = req.params.id;

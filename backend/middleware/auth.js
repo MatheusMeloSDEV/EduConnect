@@ -1,5 +1,7 @@
+
 const User = require('../models/User');
 
+// Middleware que verifica a validade do token JWT na requisição
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -7,20 +9,20 @@ const authenticateToken = async (req, res, next) => {
   if (!token) return res.status(401).json({ success: false, message: "Token de acesso necessário" });
 
   try {
-    // Basic Mock Token Format: "mock-token-{userId}-{timestamp}"
-    // In production, use JWT (jsonwebtoken package)
+    // Formato Básico de Token Simulado: "mock-token-{userId}-{timestamp}"
+    // Em produção, use JWT (pacote jsonwebtoken)
     const parts = token.split('-');
     let userId = null;
     
-    // Support legacy "offline-token" fallback
+    // Suporte para fallback de token "offline-token" antigo
     if (token === "offline-token") {
          return res.status(401).json({ success: false, message: "Token offline inválido para backend online." });
     }
     
     if (parts.length >= 3) {
-       // Extract ID from middle of string
+       // Extrair ID do meio da string
        userId = parts.slice(2, parts.length - 1).join('-'); 
-       // Fallback for simple id format
+       // Fallback para formato de id simples
        if(!userId) userId = parts[2]; 
     }
 
@@ -42,6 +44,7 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
+// Middleware que verifica o token se presente, mas não bloqueia a requisição se ausente
 const optionalAuth = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     if (authHeader) return authenticateToken(req, res, next);
