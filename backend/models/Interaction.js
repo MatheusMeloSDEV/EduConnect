@@ -48,7 +48,11 @@ upvoteSchema.index({ article: 1 });
 upvoteSchema.index({ user: 1 });
 upvoteSchema.index({ createdAt: -1 });
 
+// Check if models already exist to prevent "OverwriteModelError"
+const ReviewLike = mongoose.models.ReviewLike || mongoose.model("ReviewLike", reviewLikeSchema);
+const ArticleUpvote = mongoose.models.Upvote || mongoose.model("Upvote", upvoteSchema);
+
 module.exports = {
-    ReviewLike: mongoose.model("ReviewLike", reviewLikeSchema),
-    ArticleUpvote: mongoose.model("Upvote", upvoteSchema)
+    ReviewLike,
+    ArticleUpvote
 };

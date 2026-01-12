@@ -28,15 +28,19 @@ exports.getAllArticles = async (req, res) => {
         // Check upvote status for current user
         let articlesWithStatus = articles.map(a => a.toObject());
         if (currentUserId) {
-            const upvotes = await ArticleUpvote.find({ 
-                user: currentUserId, 
-                article: { $in: articles.map(a => a._id) } 
-            });
-            const upvotedIds = new Set(upvotes.map(u => u.article.toString()));
-            articlesWithStatus = articlesWithStatus.map(a => ({
-                ...a,
-                userUpvoted: upvotedIds.has(a._id.toString())
-            }));
+            try {
+                const upvotes = await ArticleUpvote.find({ 
+                    user: currentUserId, 
+                    article: { $in: articles.map(a => a._id) } 
+                });
+                const upvotedIds = new Set(upvotes.map(u => u.article.toString()));
+                articlesWithStatus = articlesWithStatus.map(a => ({
+                    ...a,
+                    userUpvoted: upvotedIds.has(a._id.toString())
+                }));
+            } catch (err) {
+                console.error("Error fetching upvotes:", err);
+            }
         }
 
         res.json({
@@ -49,6 +53,7 @@ exports.getAllArticles = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error("getAllArticles Error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -77,12 +82,17 @@ exports.getArticleById = async (req, res) => {
         let articleObj = article.toObject();
 
         if (currentUserId) {
-            const upvote = await ArticleUpvote.findOne({ user: currentUserId, article: article._id });
-            articleObj.userUpvoted = !!upvote;
+            try {
+                const upvote = await ArticleUpvote.findOne({ user: currentUserId, article: article._id });
+                articleObj.userUpvoted = !!upvote;
+            } catch (err) {
+                console.error("Error fetching single upvote:", err);
+            }
         }
 
         res.json({ success: true, data: articleObj });
     } catch (error) {
+        console.error("getArticleById Error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -141,8 +151,7 @@ exports.deleteArticle = async (req, res) => {
 
         await Article.deleteOne({ _id: article._id });
         await ArticleUpvote.deleteMany({ article: article._id });
-        // Optionally delete reviews here too
-
+        
         res.json({ success: true, message: "Artigo deletado" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -154,8 +163,10 @@ exports.toggleUpvote = async (req, res) => {
         const articleId = req.params.id;
         const userId = req.user.userId;
 
+        console.log(`Toggling upvote for User ${userId} on Article ${articleId}`);
+
         const article = await Article.findById(articleId);
-        if (!article) return res.status(404).json({ success: false });
+        if (!article) return res.status(404).json({ success: false, message: "Artigo não encontrado" });
 
         const existingUpvote = await ArticleUpvote.findOne({ user: userId, article: articleId });
         let upvoted = false;
@@ -164,14 +175,27 @@ exports.toggleUpvote = async (req, res) => {
             await ArticleUpvote.deleteOne({ _id: existingUpvote._id });
             article.upvotes = Math.max(0, article.upvotes - 1);
         } else {
-            await ArticleUpvote.create({ user: userId, article: articleId });
-            article.upvotes += 1;
-            upvoted = true;
+            // Ensure no race conditions creating duplicates (handled by unique index in model, but good to catch)
+            try {
+                await ArticleUpvote.create({ user: userId, article: articleId });
+                article.upvotes += 1;
+                upvoted = true;
+            } catch (e) {
+                if (e.code === 11000) {
+                   // Already exists (race condition), treat as upvoted
+                   upvoted = true; 
+                } else {
+                   throw e;
+                }
+            }
         }
         
         await article.save();
+        console.log(`Upvote success. New Count: ${article.upvotes}, UserUpvoted: ${upvoted}`);
+        
         res.json({ success: true, data: { upvotes: article.upvotes, upvoted } });
     } catch (error) {
+        console.error("toggleUpvote Error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

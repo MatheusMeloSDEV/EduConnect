@@ -13,19 +13,24 @@ exports.getReviewsByArticle = async (req, res) => {
         let reviewsWithStatus = reviews.map(r => r.toObject());
 
         if (currentUserId) {
-             const likes = await ReviewLike.find({ 
-                user: currentUserId, 
-                review: { $in: reviews.map(r => r._id) } 
-            });
-            const likedIds = new Set(likes.map(l => l.review.toString()));
-            reviewsWithStatus = reviewsWithStatus.map(r => ({
-                ...r,
-                userLiked: likedIds.has(r._id.toString())
-            }));
+            try {
+                const likes = await ReviewLike.find({ 
+                    user: currentUserId, 
+                    review: { $in: reviews.map(r => r._id) } 
+                });
+                const likedIds = new Set(likes.map(l => l.review.toString()));
+                reviewsWithStatus = reviewsWithStatus.map(r => ({
+                    ...r,
+                    userLiked: likedIds.has(r._id.toString())
+                }));
+            } catch (err) {
+                 console.error("Error fetching review likes:", err);
+            }
         }
 
         res.json({ success: true, data: reviewsWithStatus });
     } catch (error) {
+        console.error("getReviewsByArticle Error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -45,7 +50,7 @@ exports.createReview = async (req, res) => {
         await newReview.save();
         await newReview.populate('reviewer', 'fullName avatar');
 
-        // Increment review count on article
+        // Increment review count on article manually if middleware fails or for redundancy
         await Article.findByIdAndUpdate(articleId, { $inc: { reviews: 1 } });
 
         res.status(201).json({ success: true, message: "Comentário adicionado", data: newReview });
@@ -59,8 +64,10 @@ exports.toggleReviewLike = async (req, res) => {
         const reviewId = req.params.id;
         const userId = req.user.userId;
 
+        console.log(`Toggling like for User ${userId} on Review ${reviewId}`);
+
         const review = await Review.findById(reviewId);
-        if (!review) return res.status(404).json({ success: false });
+        if (!review) return res.status(404).json({ success: false, message: "Comentário não encontrado" });
 
         const existingLike = await ReviewLike.findOne({ user: userId, review: reviewId });
         let liked = false;
@@ -69,14 +76,23 @@ exports.toggleReviewLike = async (req, res) => {
             await ReviewLike.deleteOne({ _id: existingLike._id });
             review.upvotes = Math.max(0, review.upvotes - 1);
         } else {
-            await ReviewLike.create({ user: userId, review: reviewId });
-            review.upvotes += 1;
-            liked = true;
+             try {
+                await ReviewLike.create({ user: userId, review: reviewId });
+                review.upvotes += 1;
+                liked = true;
+            } catch (e) {
+                if (e.code === 11000) {
+                    liked = true;
+                } else {
+                    throw e;
+                }
+            }
         }
 
         await review.save();
         res.json({ success: true, data: { upvotes: review.upvotes, liked } });
     } catch (error) {
+        console.error("toggleReviewLike Error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -92,6 +108,7 @@ exports.deleteReview = async (req, res) => {
 
         const articleId = review.article;
         await Review.deleteOne({ _id: review._id });
+        await ReviewLike.deleteMany({ review: review._id });
         
         // Decrement article review count
         await Article.findByIdAndUpdate(articleId, { $inc: { reviews: -1 } });

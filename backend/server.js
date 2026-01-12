@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3010;
 // Use Environment Variable or fallback to the provided string
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://mathmsantos:math-tech-challenge@techchallenge-backend.a8onrmr.mongodb.net/?retryWrites=true&w=majority&appName=techchallenge-backend";
 
-// Connect to MongoDB
+// Connect to MongoDB with better error handling
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ Connected to MongoDB Atlas'))
   .catch(err => console.error('❌ MongoDB Connection Error:', err));
@@ -57,6 +57,27 @@ app.get('/', (req, res) => {
 
 // Health Check
 app.get('/api/health', (req, res) => res.json({ success: true, message: "API EDUConnect Backend Running" }));
+
+// Handle 404
+app.use((req, res) => {
+    res.status(404).json({ success: false, message: "Rota não encontrada" });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error("Unhandled Error:", err);
+    res.status(500).json({ success: false, message: "Erro interno no servidor" });
+});
+
+// Prevent crash on unhandled rejection
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit process in dev environment to keep server alive
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+});
 
 // Listen on 0.0.0.0 to ensure Docker container exposes the port correctly
 app.listen(PORT, '0.0.0.0', () => {
