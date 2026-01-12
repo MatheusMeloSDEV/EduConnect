@@ -5,7 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3001, // Keeps the frontend on the port you expected
+    port: 3001,
+    host: true, // Listen on all local IPs to allow mobile testing
   },
   build: {
     outDir: 'dist',

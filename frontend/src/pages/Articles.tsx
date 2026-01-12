@@ -71,8 +71,8 @@ function Articles() {
                 
                 <div className="p-5 flex flex-col flex-1">
                     <div className="flex items-center gap-2 mb-3">
-                        <img src={article.writer.avatar} className="w-6 h-6 rounded-full" />
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{article.writer.fullName}</span>
+                        <img src={article.writer?.avatar || "https://ui-avatars.com/api/?name=Unknown"} className="w-6 h-6 rounded-full bg-gray-200" />
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{article.writer?.fullName || "Autor Desconhecido"}</span>
                     </div>
 
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight mb-2 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{article.headline}</h2>

@@ -6,6 +6,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (userData: User) => void;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -42,8 +43,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem("user");
   };
 
+  const updateUser = (userData: User) => {
+      // Merge new data with existing user data (preserving token if not present in update)
+      const currentUser = user;
+      const updatedUser = { ...currentUser, ...userData };
+      
+      // Ensure token persists if backend doesn't return it on update
+      if (currentUser?.token && !updatedUser.token) {
+          updatedUser.token = currentUser.token;
+      }
+      
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, isAuthenticated: !!user, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

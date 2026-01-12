@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import useAuth from "../hooks/useAuth";
 import { articleService } from "../services/api";
@@ -7,16 +7,11 @@ import { FaArrowLeft, FaCheck, FaImage } from "react-icons/fa";
 
 function CreateArticle() {
   const navigate = useNavigate();
+  const { id } = useParams(); // Check if we are in edit mode
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   
-  useEffect(() => {
-    if (user && user.role !== 'professor') {
-      alert("Apenas professores podem criar artigos.");
-      navigate('/home');
-    }
-  }, [user, navigate]);
-
   const [formData, setFormData] = useState({
     headline: "",
     summary: "",
@@ -25,8 +20,46 @@ function CreateArticle() {
     imageUrl: ""
   });
 
+  useEffect(() => {
+    if (user && user.role !== 'professor') {
+      alert("Apenas professores podem criar artigos.");
+      navigate('/home');
+      return;
+    }
+
+    if (id) {
+      setIsEditing(true);
+      setLoading(true);
+      articleService.getArticleById(id)
+        .then(res => {
+          const article = res.data;
+          setFormData({
+            headline: article.headline,
+            summary: article.summary,
+            body: article.body,
+            tags: article.tags.join(', '),
+            imageUrl: article.imageUrl
+          });
+        })
+        .catch(err => {
+          alert("Erro ao carregar artigo para edição.");
+          navigate('/articles');
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [user, navigate, id]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleBack = () => {
+     // Explicitly navigate based on context to avoid getting stuck
+     if (isEditing && id) {
+         navigate(`/articles/${id}`);
+     } else {
+         navigate('/articles');
+     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,19 +69,29 @@ function CreateArticle() {
 
     try {
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(t => t.length > 0);
-      
-      await articleService.createArticle({
+      const payload = {
         headline: formData.headline,
         summary: formData.summary,
         body: formData.body,
-        imageUrl: formData.imageUrl || "https://picsum.photos/seed/default/800/600", // Fallback if empty, though backend requires it
+        imageUrl: formData.imageUrl || "https://picsum.photos/seed/default/800/600",
         tags: tagsArray.length > 0 ? tagsArray : ["Geral"]
-      }, user);
+      };
 
-      navigate('/articles');
+      let targetId = id;
+
+      if (isEditing && id) {
+        await articleService.updateArticle(id, payload);
+      } else {
+        const res = await articleService.createArticle(payload, user);
+        targetId = res.data._id;
+      }
+
+      // Use replace: true to prevent the history stack from growing with the 'Edit' page
+      // This ensures 'Back' from the Detail page goes to the List, not back to Edit.
+      navigate(`/articles/${targetId}`, { replace: true });
     } catch (error) {
       console.error(error);
-      alert("Erro ao criar artigo. Verifique se o backend está rodando.");
+      alert("Erro ao salvar artigo.");
     } finally {
       setLoading(false);
     }
@@ -60,10 +103,14 @@ function CreateArticle() {
     <div className="flex justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 min-h-screen relative shadow-2xl flex flex-col">
         <div className="bg-white dark:bg-gray-800 px-6 py-4 flex items-center gap-4 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-20">
-          <button onClick={() => navigate(-1)} className="text-gray-600 dark:text-gray-300 p-2 -ml-2 rounded-full active:bg-gray-100 dark:active:bg-gray-700">
+          <button 
+            type="button" 
+            onClick={handleBack} 
+            className="text-gray-600 dark:text-gray-300 p-2 -ml-2 rounded-full active:bg-gray-100 dark:active:bg-gray-700"
+          >
             <FaArrowLeft />
           </button>
-          <h1 className="text-lg font-bold text-gray-800 dark:text-white">Novo Artigo</h1>
+          <h1 className="text-lg font-bold text-gray-800 dark:text-white">{isEditing ? "Editar Artigo" : "Novo Artigo"}</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6 flex-1 overflow-y-auto">
@@ -135,9 +182,9 @@ function CreateArticle() {
               disabled={loading}
               className="w-full bg-purple-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-70"
             >
-              {loading ? "Publicando..." : (
+              {loading ? "Carregando..." : (
                 <>
-                  <FaCheck /> Publicar Artigo
+                  <FaCheck /> {isEditing ? "Salvar Alterações" : "Publicar Artigo"}
                 </>
               )}
             </button>

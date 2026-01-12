@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import { authService } from "../services/api";
-import { FaUser, FaEnvelope, FaLock, FaBuilding, FaArrowLeft, FaIdCard, FaUsers, FaBook } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaBuilding, FaArrowLeft, FaIdCard, FaUsers, FaBook, FaImage } from "react-icons/fa";
 
 function Register() {
   const navigate = useNavigate();
@@ -15,6 +15,7 @@ function Register() {
     password: "",
     institution: "",
     age: "",
+    avatar: "", // Added avatar field
     guardianName: "", // For student
     group: "",       // For student
     subjects: ""     // For professor (comma separated)
@@ -36,7 +37,8 @@ function Register() {
         institution: formData.institution,
         age: parseInt(formData.age),
         role: role,
-        avatar: `https://ui-avatars.com/api/?name=${formData.fullName}&background=random`
+        // Use provided avatar or fallback to auto-generated one
+        avatar: formData.avatar || `https://ui-avatars.com/api/?name=${formData.fullName}&background=random`
       };
 
       if (role === "aluno") {
@@ -126,6 +128,11 @@ function Register() {
                             <div className="relative">
                                 <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input name="password" type="password" onChange={handleChange} placeholder="Senha" className={inputClasses} required />
+                            </div>
+                             {/* New Avatar Field */}
+                             <div className="relative">
+                                <FaImage className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input name="avatar" onChange={handleChange} placeholder="URL do Avatar (Opcional)" className={inputClasses} />
                             </div>
                             <div className="flex gap-4">
                                 <div className="relative flex-1">

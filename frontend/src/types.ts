@@ -8,6 +8,7 @@ export interface User {
   guardianName?: string;
   group?: string;
   subjects?: string[];
+  token?: string;
 }
 
 export interface Article {
@@ -37,5 +38,16 @@ export interface LoginResponse {
   data: {
     user: User;
     token: string;
+  };
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalArticles: number;
   };
 }

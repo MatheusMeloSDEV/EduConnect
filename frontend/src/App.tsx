@@ -29,6 +29,7 @@ function AppRoutes() {
         <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/articles" element={<ProtectedRoute><Articles /></ProtectedRoute>} />
         <Route path="/articles/create" element={<ProtectedRoute><CreateArticle /></ProtectedRoute>} />
+        <Route path="/articles/edit/:id" element={<ProtectedRoute><CreateArticle /></ProtectedRoute>} />
         <Route path="/articles/:id" element={<ProtectedRoute><ArticleDetail /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/profile/articles" element={<ProtectedRoute><MyArticles /></ProtectedRoute>} />
