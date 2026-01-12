@@ -34,7 +34,7 @@ yarn-error.log*
 *.keystore
 android/
 ios/
-package-lock.json
 
-# FrontEnd
+Dockerfile
+
 package-lock.json
