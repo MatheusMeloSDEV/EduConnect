@@ -1,0 +1,49 @@
+import React from "react";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import useAuth from "./hooks/useAuth";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import Articles from "./pages/Articles";
+import ArticleDetail from "./pages/ArticleDetail";
+import Profile from "./pages/Profile";
+import CreateArticle from "./pages/CreateArticle";
+import MyArticles from "./pages/MyArticles";
+import Settings from "./pages/Settings";
+
+const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <div className="flex h-screen items-center justify-center text-purple-600">Carregando...</div>;
+  if (!isAuthenticated) return <Navigate to="/" replace />;
+  return <>{children}</>;
+};
+
+function AppRoutes() {
+  return (
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/articles" element={<ProtectedRoute><Articles /></ProtectedRoute>} />
+        <Route path="/articles/create" element={<ProtectedRoute><CreateArticle /></ProtectedRoute>} />
+        <Route path="/articles/:id" element={<ProtectedRoute><ArticleDetail /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/profile/articles" element={<ProtectedRoute><MyArticles /></ProtectedRoute>} />
+        <Route path="/profile/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </HashRouter>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+}
+
+export default App;
