@@ -155,13 +155,16 @@ exports.updateUserByAdmin = async (req, res) => {
         const userId = req.params.id;
         const updates = req.body;
         
-        // Prevent changing password directly via this endpoint for simplicity, or handle hashing if creating a full admin panel
-        delete updates.password; 
+        // Ensure password is hashed if provided (handled by pre-findOneAndUpdate hook in User model)
+        // We do NOT delete updates.password here anymore.
 
-        const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true });
+        const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true });
         if(!updatedUser) return res.status(404).json({success: false, message: "Usuário não encontrado"});
 
-        res.json({ success: true, message: "Usuário atualizado", data: updatedUser });
+        // Sanitize the returned user object (remove password hash)
+        const publicUser = updatedUser.toPublicJSON ? updatedUser.toPublicJSON() : updatedUser;
+
+        res.json({ success: true, message: "Usuário atualizado", data: publicUser });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
