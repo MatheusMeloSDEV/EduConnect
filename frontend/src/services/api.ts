@@ -14,11 +14,11 @@ const getEnvVar = (key: string) => {
   return undefined;
 };
 
-// Use relative path by default to leverage Vite Proxy in development
-// Only use full URL if explicitly set in environment variables
+// Use the hosted backend URL by default
+// If VITE_API_URL is provided in .env, use that instead (e.g. for local dev overrides)
 const API_URL = getEnvVar('VITE_API_URL') 
   ? `${getEnvVar('VITE_API_URL')}/api`
-  : "/api";
+  : "https://backend-techchalenge-main.onrender.com/api";
 
 // Helper to get headers with JWT token
 const getHeaders = () => {
@@ -46,7 +46,7 @@ async function handleResponse<T>(promise: Promise<Response>): Promise<T> {
     // If not JSON, it's likely an HTML error page (404/500 from proxy or server)
     const text = await res.text();
     console.error("Non-JSON API Response:", text.substring(0, 200)); // Log first 200 chars
-    throw new Error(`Erro na API (${res.status}): A resposta não é JSON. Verifique se o Backend está rodando na porta 3010.`);
+    throw new Error(`Erro na API (${res.status}): A resposta não é JSON. Verifique a conexão com ${API_URL}`);
   }
 }
 
