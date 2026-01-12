@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaUser, FaCompass, FaGraduationCap, FaPen } from "react-icons/fa";
+import { FaHome, FaUser, FaCompass, FaGraduationCap, FaPen, FaCog } from "react-icons/fa";
 import useAuth from "../hooks/useAuth";
 
 interface LayoutProps {
@@ -41,7 +41,10 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
           <SidebarLink to="/home" icon={FaHome} label="Home" active={isActive('/home')} />
           <SidebarLink to="/articles" icon={FaCompass} label="Explorar" active={isActive('/articles')} />
           {user?.role === 'professor' && (
-            <SidebarLink to="/articles/create" icon={FaPen} label="Escrever" active={isActive('/articles/create')} />
+            <>
+              <SidebarLink to="/articles/create" icon={FaPen} label="Escrever" active={isActive('/articles/create')} />
+              <SidebarLink to="/admin" icon={FaCog} label="Administração" active={location.pathname.startsWith('/admin')} />
+            </>
           )}
           <SidebarLink to="/profile" icon={FaUser} label="Perfil" active={isActive('/profile')} />
         </nav>
@@ -85,7 +88,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
           <MobileLink to="/home" icon={FaHome} label="Home" active={isActive('/home')} />
           <MobileLink to="/articles" icon={FaCompass} label="Explorar" active={isActive('/articles')} />
           {user?.role === 'professor' && (
-             <MobileLink to="/articles/create" icon={FaPen} label="Escrever" active={isActive('/articles/create')} />
+             <MobileLink to="/admin" icon={FaCog} label="Admin" active={location.pathname.startsWith('/admin')} />
           )}
           <MobileLink to="/profile" icon={FaUser} label="Perfil" active={isActive('/profile')} />
         </nav>

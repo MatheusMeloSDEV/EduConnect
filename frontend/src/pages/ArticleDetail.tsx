@@ -18,8 +18,8 @@ function ArticleDetail() {
     if (id) {
       articleService.getArticleById(id).then(res => {
           setArticle(res.data);
-          // Set initial liked state if available from backend response
-          // Assuming backend might send this info, otherwise local state handles toggle visually
+          // Initialize liked state from backend response
+          setLiked(!!res.data.userUpvoted);
       });
       commentService.getCommentsByArticle(id).then(res => setComments(res.data));
     }
@@ -29,14 +29,28 @@ function ArticleDetail() {
     if (!article || !id) return;
     articleService.toggleUpvote(id).then(res => {
         setLiked(res.data.upvoted);
-        setArticle({ ...article, upvotes: res.data.upvotes });
+        setArticle({ ...article, upvotes: res.data.upvotes, userUpvoted: res.data.upvoted });
     });
+  };
+
+  const handleCommentLike = async (commentId: string) => {
+    try {
+        const res = await commentService.toggleCommentLike(commentId);
+        setComments(prevComments => prevComments.map(c => {
+            if (c._id === commentId) {
+                return { ...c, upvotes: res.data.upvotes, userLiked: res.data.liked };
+            }
+            return c;
+        }));
+    } catch (error) {
+        console.error("Error liking comment:", error);
+    }
   };
 
   const handleSendComment = async () => {
     if(!commentText.trim() || !id) return;
     const res = await commentService.createComment({ message: commentText, articleId: id });
-    setComments([...comments, res.data]);
+    setComments([res.data, ...comments]); // Prepend new comment
     setCommentText("");
   };
 
@@ -117,7 +131,7 @@ function ArticleDetail() {
               }`}
             >
               {liked ? <FaHeart size={18} /> : <FaRegHeart size={18} />}
-              <span className="font-bold text-sm">{liked ? 'Curtido' : 'Curtir'}</span>
+              <span className="font-bold text-sm">{liked ? 'Curtido' : 'Curtir'} {article.upvotes > 0 ? `(${article.upvotes})` : ''}</span>
             </button>
           </div>
 
@@ -169,7 +183,13 @@ function ArticleDetail() {
                         <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">{c.message}</p>
                     </div>
                     <div className="flex items-center gap-4 mt-2 ml-2 text-xs font-medium text-gray-500 dark:text-gray-500">
-                        <button className="hover:text-purple-600 dark:hover:text-purple-400">Curtir</button>
+                        <button 
+                            onClick={() => handleCommentLike(c._id)}
+                            className={`flex items-center gap-1 transition-colors ${c.userLiked ? 'text-purple-600 dark:text-purple-400' : 'hover:text-purple-600 dark:hover:text-purple-400'}`}
+                        >
+                             {c.userLiked ? <FaHeart /> : <FaRegHeart />} 
+                             {c.upvotes > 0 ? `${c.upvotes} Curtir` : 'Curtir'}
+                        </button>
                         <button className="hover:text-purple-600 dark:hover:text-purple-400">Responder</button>
                         <span>{new Date(c.createdAt).toLocaleDateString()}</span>
                     </div>

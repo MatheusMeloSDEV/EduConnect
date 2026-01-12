@@ -14,10 +14,11 @@ const getEnvVar = (key: string) => {
   return undefined;
 };
 
-// Use the hosted backend by default for the mobile app
+// Use relative path by default to leverage Vite Proxy in development
+// Only use full URL if explicitly set in environment variables
 const API_URL = getEnvVar('VITE_API_URL') 
   ? `${getEnvVar('VITE_API_URL')}/api`
-  : "https://backend-techchalenge-main.onrender.com/api";
+  : "/api";
 
 // Helper to get headers with JWT token
 const getHeaders = () => {
@@ -29,14 +30,24 @@ const getHeaders = () => {
   };
 };
 
-// Helper to handle API responses standardly
+// Helper to handle API responses standardly with better error checking
 async function handleResponse<T>(promise: Promise<Response>): Promise<T> {
   const res = await promise;
-  const json = await res.json();
-  if (!res.ok) {
-      throw new Error(json.message || `HTTP Error ${res.status}`);
+  
+  // Check if response is JSON
+  const contentType = res.headers.get("content-type");
+  if (contentType && contentType.indexOf("application/json") !== -1) {
+    const json = await res.json();
+    if (!res.ok) {
+        throw new Error(json.message || `HTTP Error ${res.status}`);
+    }
+    return json;
+  } else {
+    // If not JSON, it's likely an HTML error page (404/500 from proxy or server)
+    const text = await res.text();
+    console.error("Non-JSON API Response:", text.substring(0, 200)); // Log first 200 chars
+    throw new Error(`Erro na API (${res.status}): A resposta não é JSON. Verifique se o Backend está rodando na porta 3010.`);
   }
-  return json;
 }
 
 export const authService = {
@@ -88,6 +99,43 @@ export const authService = {
         body: JSON.stringify({ currentPassword, newPassword })
       })
     );
+  },
+
+  // Admin Methods
+  async getAllUsers(role?: string): Promise<ApiResponse<User[]>> {
+    const url = role ? `${API_URL}/users?role=${role}` : `${API_URL}/users`;
+    return handleResponse<ApiResponse<User[]>>(
+      fetch(url, { headers: getHeaders() })
+    );
+  },
+
+  async deleteUser(id: string): Promise<ApiResponse<void>> {
+    return handleResponse<ApiResponse<void>>(
+      fetch(`${API_URL}/users/${id}`, {
+        method: "DELETE",
+        headers: getHeaders()
+      })
+    );
+  },
+
+  async createUserByAdmin(userData: any): Promise<ApiResponse<User>> {
+    return handleResponse<ApiResponse<User>>(
+      fetch(`${API_URL}/users`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(userData)
+      })
+    );
+  },
+
+  async updateUserByAdmin(id: string, updates: Partial<User>): Promise<ApiResponse<User>> {
+    return handleResponse<ApiResponse<User>>(
+      fetch(`${API_URL}/users/${id}`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(updates)
+      })
+    );
   }
 };
 
@@ -118,6 +166,13 @@ export const articleService = {
     // Fetch all articles (with a higher limit) and filter client-side since 
     // the backend endpoint for author filtering might not be exposed directly.
     const res = await fetch(`${API_URL}/articles?limit=100`, { headers: getHeaders() });
+    
+    // Manual check here because we process data before returning
+    const contentType = res.headers.get("content-type");
+    if (!contentType || contentType.indexOf("application/json") === -1) {
+        throw new Error("Erro API: Resposta não é JSON.");
+    }
+
     const json = await res.json();
     
     if (!res.ok) {

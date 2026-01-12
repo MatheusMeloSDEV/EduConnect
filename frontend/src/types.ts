@@ -9,6 +9,7 @@ export interface User {
   group?: string;
   subjects?: string[];
   token?: string;
+  age?: number;
 }
 
 export interface Article {
@@ -22,13 +23,14 @@ export interface Article {
   tags: string[];
   createdAt: string;
   writer: User;
+  userUpvoted?: boolean;
 }
 
 export interface Comment {
   _id: string;
   message: string;
   reviewer: User;
-  likes: number;
+  upvotes: number;
   userLiked?: boolean;
   createdAt: string;
 }

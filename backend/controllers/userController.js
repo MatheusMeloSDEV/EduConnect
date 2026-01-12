@@ -1,8 +1,9 @@
+
 const User = require('../models/User');
 
 exports.register = async (req, res) => {
     try {
-        const { fullName, email, password, role, institution, age, guardianName, group, subjects } = req.body;
+        const { fullName, email, password, role, institution, age, guardianName, group, subjects, avatar } = req.body;
         
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -12,7 +13,7 @@ exports.register = async (req, res) => {
         // Create user (password will be hashed by pre-save hook in model)
         const newUser = new User({
             fullName, email, password, role, institution, age,
-            avatar: `https://ui-avatars.com/api/?name=${fullName.replace(' ', '+')}&background=random`
+            avatar: avatar || `https://ui-avatars.com/api/?name=${fullName.replace(' ', '+')}&background=random`
         });
 
         if (role === 'aluno') {
@@ -114,6 +115,63 @@ exports.changePassword = async (req, res) => {
         await user.save();
         
         res.json({ success: true, message: "Senha alterada com sucesso" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// --- Admin Methods ---
+
+exports.getAllUsers = async (req, res) => {
+    try {
+        const { role } = req.query;
+        const query = {};
+        if (role) query.role = role;
+        
+        const users = await User.find(query).sort({ createdAt: -1 });
+        res.json({ success: true, data: users });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.getUserById = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if(!user) return res.status(404).json({success: false, message: "Usuário não encontrado"});
+        res.json({ success: true, data: user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.createUserByAdmin = async (req, res) => {
+    // Reusing register logic but authenticated
+    return exports.register(req, res);
+};
+
+exports.updateUserByAdmin = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const updates = req.body;
+        
+        // Prevent changing password directly via this endpoint for simplicity, or handle hashing if creating a full admin panel
+        delete updates.password; 
+
+        const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true });
+        if(!updatedUser) return res.status(404).json({success: false, message: "Usuário não encontrado"});
+
+        res.json({ success: true, message: "Usuário atualizado", data: updatedUser });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.deleteUser = async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        // In a real app, delete their articles/comments/likes too
+        res.json({ success: true, message: "Usuário removido" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
