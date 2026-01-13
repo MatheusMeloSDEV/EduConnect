@@ -1,0 +1,55 @@
+export interface User {
+  _id: string;
+  fullName: string;
+  email: string;
+  avatar?: string;
+  role: "professor" | "aluno";
+  institution?: string;
+  guardianName?: string;
+  group?: string;
+  subjects?: string[];
+  token?: string;
+  age?: number;
+}
+
+export interface Article {
+  _id: string;
+  headline: string;
+  summary: string;
+  body: string;
+  imageUrl: string;
+  upvotes: number;
+  reviews: number;
+  tags: string[];
+  createdAt: string;
+  writer: User;
+  userUpvoted?: boolean;
+}
+
+export interface Comment {
+  _id: string;
+  message: string;
+  reviewer: User;
+  upvotes: number;
+  userLiked?: boolean;
+  createdAt: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  data: {
+    user: User;
+    token: string;
+  };
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalArticles: number;
+  };
+}
