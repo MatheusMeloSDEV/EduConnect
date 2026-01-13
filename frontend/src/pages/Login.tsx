@@ -35,10 +35,10 @@ function Login() {
 
   return (
     <Layout hideNav>
-      <div className="flex flex-col md:flex-row h-full">
+      <div className="flex flex-col md:flex-row h-full w-full">
         
-        {/* Cabeçalho Mobile / Painel Esquerdo Desktop */}
-        <div className="flex-1 flex flex-col justify-center items-center gap-6 bg-gradient-to-br from-purple-700 to-purple-500 text-white p-10 min-h-[40vh] md:min-h-full">
+        {/* Cabeçalho Mobile / Painel Esquerdo Desktop (50%) */}
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-center gap-6 bg-gradient-to-br from-purple-700 to-purple-500 text-white p-10 min-h-[40vh] md:min-h-full">
           <div className="bg-white/20 p-6 rounded-full backdrop-blur-sm shadow-xl animate-bounce-slow">
             <FaGraduationCap size={48} className="text-white" />
           </div>
@@ -48,10 +48,10 @@ function Login() {
           </div>
         </div>
 
-        {/* Seção do Formulário de Login */}
-        <div className="w-full md:w-[500px] bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-none p-8 pb-12 shadow-2xl md:shadow-none animate-slide-up md:animate-none flex flex-col justify-center -mt-6 md:mt-0 relative z-10 transition-colors duration-300">
+        {/* Seção do Formulário de Login (50%) */}
+        <div className="w-full md:w-1/2 bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-none p-8 pb-12 shadow-2xl md:shadow-none animate-slide-up md:animate-none flex flex-col justify-center items-center -mt-6 md:mt-0 relative z-10 transition-colors duration-300">
           
-          <div className="max-w-sm mx-auto w-full">
+          <div className="max-w-sm w-full">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Bem-vindo(a)!</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-6">Selecione seu perfil para entrar.</p>
 
