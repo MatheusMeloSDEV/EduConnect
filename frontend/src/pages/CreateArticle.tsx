@@ -227,7 +227,7 @@ function CreateArticle() {
         </div>
 
         {/* Lado Direito: Sidebar IA */}
-        <div className="w-full md:w-80 mt-8 md:mt-0">
+        <div className="w-full md:w-[450px] mt-8 md:mt-0 flex-shrink-0">
             <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl sticky top-24">
                 <div className="flex items-center gap-2 mb-4">
                     <FaRobot className="animate-bounce" />

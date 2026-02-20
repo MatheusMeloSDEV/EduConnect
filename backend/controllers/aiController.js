@@ -13,14 +13,14 @@ exports.generateSuggestions = async (req, res) => {
     
     const safeBody = body.substring(0, 500);
 
-    const response = await ai.models.generateContent({
+const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Com base no título "${headline}" e no conteúdo "${safeBody}", atue como um assistente pedagógico e gere o seguinte material:
 1. Resumo: Um parágrafo curto e engajador (máximo de 3 linhas) resumindo o texto.
-2. Links Úteis: Sugira 3 links de fontes confiáveis (BBC, G1, Khan Academy, Nova Escola, etc) sobre o tema.
+2. Conteúdo Extra: Escreva 2 parágrafos aprofundando o tema. Simule o estilo de grandes portais educacionais ou de notícias. Diga explicitamente o nome da fonte que você usou como inspiração (Ex: "Conteúdo inspirado no estilo da Khan Academy/BBC").
 3. Questões: 2 questões de vestibular/ENEM relacionadas ao assunto, incluindo o gabarito.
 
-REGRA ESTRITA: Retorne APENAS o conteúdo solicitado, separado por títulos claros. Não inclua NENHUMA saudação, introdução ou conclusão (como "Aqui está o resumo..."). Vá direto ao ponto. NÃO USE formatação markdown, não use asteriscos e evite completamente o uso de negrito (**). Responda em texto puro.`,
+REGRA ESTRITA: Retorne APENAS o conteúdo solicitado, separado por títulos claros. NÃO invente links ou URLs de internet. Não use formatação markdown, não use asteriscos e evite completamente o uso de negrito. Responda em texto puro.`,
     });
 
     res.json({ success: true, data: response.text });

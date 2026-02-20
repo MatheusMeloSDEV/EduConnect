@@ -66,14 +66,14 @@ function AdminDashboard() {
 
   // Função nova da IA
   const handleAnalyzeDoubts = async (articleId: string) => {
-    setLoadingArticleId(articleId); // Dizemos ao React QUAL botão está carregando
+    setLoadingArticleId(articleId);
     try {
         const res = await aiService.analyzeDoubts(articleId);
         setInsight({ id: articleId, text: res.data });
     } catch (e) {
         alert("Erro ao analisar dúvidas com a IA.");
     } finally {
-        setLoadingArticleId(null); // Limpamos o carregamento no final
+        setLoadingArticleId(null);
     }
   };
 
@@ -141,19 +141,26 @@ function AdminDashboard() {
                         {filteredArticles.length === 0 && <div className="p-6 text-center text-gray-500">Nenhum post encontrado.</div>}
                         {filteredArticles.map(article => (
                             <div key={article._id} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                                <div className="flex items-center gap-4 overflow-hidden">
-                                    <img src={article.imageUrl} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+                                
+                                {/* ✅ SEÇÃO CLICÁVEL (Imagem e Título) */}
+                                <div 
+                                    onClick={() => navigate(`/articles/${article._id}`)}
+                                    className="flex items-center gap-4 overflow-hidden cursor-pointer group flex-1"
+                                >
+                                    <img src={article.imageUrl} className="w-12 h-12 rounded-lg object-cover flex-shrink-0 group-hover:opacity-80 transition-opacity" />
                                     <div className="min-w-0">
-                                        <h3 className="font-bold text-gray-800 dark:text-white truncate">{article.headline}</h3>
+                                        <h3 className="font-bold text-gray-800 dark:text-white truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                            {article.headline}
+                                        </h3>
                                         <p className="text-xs text-gray-500">Por: {article.writer?.fullName || 'Desconhecido'} • {article.reviews || 0} comentários</p>
                                     </div>
                                 </div>
                                 
+                                {/* Botões de Ação */}
                                 <div className="flex flex-wrap gap-2 ml-2">
-                                    {/* Botão da IA Adicionado Aqui */}
                                     <button 
                                         onClick={() => handleAnalyzeDoubts(article._id)}
-                                        disabled={loadingArticleId !== null} // Desabilita todos os botões da lista enquanto 1 carrega
+                                        disabled={loadingArticleId !== null}
                                         className="bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-purple-100 transition-all disabled:opacity-50 disabled:cursor-wait"
                                     >
                                         <FaRobot /> {loadingArticleId === article._id ? "Analisando..." : "Dúvidas IA"}
@@ -212,7 +219,8 @@ function AdminDashboard() {
                         <h2 className="text-2xl font-bold">Insights da Turma</h2>
                     </div>
 
-                    <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-purple-100 dark:border-purple-900/50 max-h-[50vh] overflow-y-auto">
+                    {/* ✅ ADICIONADO select-text AQUI */}
+                    <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-purple-100 dark:border-purple-900/50 max-h-[50vh] overflow-y-auto select-text">
                         <p className="whitespace-pre-wrap leading-relaxed">{insight.text}</p>
                     </div>
                     
