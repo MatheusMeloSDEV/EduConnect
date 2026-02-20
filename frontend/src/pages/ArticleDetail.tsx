@@ -33,14 +33,21 @@ function ArticleDetail() {
       });
       commentService.getCommentsByArticle(id).then(res => setComments(res.data));
       
-      // ✅ VERIFICA SE JÁ CONCLUIU ANTES
       if (user?.role === 'aluno') {
-        certificateService.checkCompletion(id).then(res => {
-          if (res.data.completed) {
-            setCompleted(true);
-            setAuthHash(res.data.certificate.authHash);
-          }
-        });
+        certificateService.checkCompletion(id)
+          .then(res => {
+            // Um truque para funcionar tanto no backend novo quanto no antigo!
+            const responseData = res.data || (res as any);
+            
+            if (responseData && responseData.completed) {
+              setCompleted(true);
+              setAuthHash(responseData.certificate?.authHash);
+            }
+          })
+          .catch(error => {
+            console.error("⚠️ Aviso: Não foi possível verificar o certificado agora.", error);
+            // A tela não quebra! O aluno apenas verá o botão de concluir normalmente.
+          });
       }
     }
   }, [id, user]);

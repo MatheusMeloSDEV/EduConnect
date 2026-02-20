@@ -1,4 +1,4 @@
-const Certificate = require('../models/Certificate');
+const Certificate = require('../models/certificate');
 
 // 1. Marca como concluído e gera o certificado
 exports.markAsCompleted = async (req, res) => {
