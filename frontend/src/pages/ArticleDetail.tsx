@@ -1,25 +1,29 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Article, Comment } from "../types";
 import { articleService, commentService } from "../services/api";
-import { FaArrowLeft, FaHeart, FaRegHeart, FaPaperPlane, FaPen } from "react-icons/fa";
-import useAuth from "../hooks/useAuth";
+import { FaArrowLeft, FaHeart, FaRegHeart, FaPaperPlane, FaPen, FaCheckCircle, FaAward, FaShieldAlt, FaTimes } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext"; // Importação correta!
 
 function ArticleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  
+  // Estados do Artigo e Comentários
   const [article, setArticle] = useState<Article | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [liked, setLiked] = useState(false);
   const [commentText, setCommentText] = useState("");
+  
+  // Estados do Certificado (Novidade)
+  const [completed, setCompleted] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
 
   useEffect(() => {
     if (id) {
       articleService.getArticleById(id).then(res => {
           setArticle(res.data);
-          // Inicializar estado de curtida a partir da resposta do backend
           setLiked(!!res.data.userUpvoted);
       });
       commentService.getCommentsByArticle(id).then(res => setComments(res.data));
@@ -51,17 +55,27 @@ function ArticleDetail() {
   const handleSendComment = async () => {
     if(!commentText.trim() || !id) return;
     const res = await commentService.createComment({ message: commentText, articleId: id });
-    setComments([res.data, ...comments]); // Prepend new comment
+    setComments([res.data, ...comments]);
     setCommentText("");
   };
 
   const handleBack = () => {
-    // Se tivermos histórico, voltar. Caso contrário, fallback para /articles
     if (window.history.state && window.history.state.idx > 0) {
         navigate(-1);
     } else {
         navigate('/articles');
     }
+  };
+
+  // Funções do Certificado
+  const handleComplete = () => {
+    setCompleted(true);
+    setShowCertificate(true);
+    // TODO no futuro: await api.markAsCompleted(id)
+  };
+
+  const generateAuthHash = () => {
+      return "EDU-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + Date.now().toString().slice(-4);
   };
 
   if (!article) return <div className="p-10 text-center text-gray-500 dark:text-gray-400">Carregando conteúdo...</div>;
@@ -71,10 +85,9 @@ function ArticleDetail() {
   return (
     <div className="min-h-screen bg-white md:bg-gray-50 dark:bg-gray-900 pb-20 md:pb-10 transition-colors duration-300">
       
-      {/* Wrapper Desktop: Layout de blog centralizado padrão */}
-      <div className="w-full md:max-w-5xl mx-auto bg-white dark:bg-gray-900 md:shadow-sm md:rounded-b-2xl md:min-h-screen transition-colors duration-300">
+      <div className="w-full md:max-w-5xl mx-auto bg-white dark:bg-gray-900 md:shadow-sm md:rounded-b-2xl md:min-h-screen transition-colors duration-300 relative">
         
-        {/* Imagem de Cabeçalho - Altura aumentada para 500px no desktop */}
+        {/* Cabeçalho */}
         <div className="relative h-72 md:h-[500px] w-full group">
           <img src={article.imageUrl} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent h-40 opacity-80" />
@@ -99,7 +112,6 @@ function ArticleDetail() {
         {/* Corpo do Conteúdo */}
         <div className="px-6 md:px-20 py-8 md:py-16">
           
-          {/* Metadados */}
           <div className="flex items-center gap-4 mb-6">
             <span className="text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
               {article.tags?.[0] || 'Geral'}
@@ -111,7 +123,6 @@ function ArticleDetail() {
 
           <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-8 leading-tight tracking-tight">{article.headline}</h1>
 
-          {/* Barra do Autor */}
           <div className="flex items-center justify-between border-y border-gray-100 dark:border-gray-800 py-6 mb-10">
             <div className="flex items-center gap-4">
                <img src={article.writer?.avatar || "https://ui-avatars.com/api/?name=Unknown"} className="w-12 h-12 rounded-full ring-2 ring-gray-100 dark:ring-gray-700" />
@@ -136,18 +147,43 @@ function ArticleDetail() {
             </button>
           </div>
 
-          {/* Texto do Artigo */}
-          <div className="prose prose-lg md:prose-xl prose-purple dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed font-serif md:font-sans">
+          <div className="prose prose-lg md:prose-xl prose-purple dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed font-serif md:font-sans mb-16">
             <p className="whitespace-pre-wrap">{article.body}</p>
           </div>
 
+          {/* Seção de Conclusão / Certificado */}
+          <div className="mb-16">
+            {!completed ? (
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-8 rounded-[2rem] border-2 border-dashed border-purple-200 dark:border-purple-800 text-center">
+                    <FaAward className="mx-auto text-purple-400 mb-4" size={48} />
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Terminou de estudar?</h3>
+                    <p className="text-gray-500 mb-6">Conclua este material para gerar seu certificado de participação.</p>
+                    <button 
+                        onClick={handleComplete}
+                        className="bg-purple-600 text-white px-10 py-4 rounded-2xl font-black shadow-lg hover:bg-purple-700 active:scale-95 transition-all flex items-center justify-center gap-2 mx-auto"
+                    >
+                        <FaCheckCircle /> Concluir e Gerar Certificado
+                    </button>
+                </div>
+            ) : (
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-green-50 dark:bg-green-900/20 p-6 rounded-2xl border border-green-200 text-green-700 dark:text-green-400">
+                    <div className="flex items-center gap-3">
+                        <FaCheckCircle size={24} />
+                        <span className="font-bold">Conteúdo Concluído!</span>
+                    </div>
+                    <button onClick={() => setShowCertificate(true)} className="text-sm font-black underline uppercase tracking-widest hover:text-green-800 dark:hover:text-green-300 transition-colors">
+                        Ver Certificado
+                    </button>
+                </div>
+            )}
+          </div>
+
           {/* Seção de Comentários */}
-          <div className="mt-16 pt-10 border-t border-gray-100 dark:border-gray-800">
+          <div className="pt-10 border-t border-gray-100 dark:border-gray-800">
             <h3 className="font-bold text-2xl text-gray-900 dark:text-white mb-8 flex items-center gap-3">
                 Comentários <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm px-2.5 py-0.5 rounded-full font-medium">{comments.length}</span>
             </h3>
             
-            {/* Input */}
             <div className="flex gap-4 items-start mb-10">
                 <img 
                   src={user?.avatar || "https://ui-avatars.com/api/?name=User"} 
@@ -158,7 +194,7 @@ function ArticleDetail() {
                     <textarea 
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
-                        placeholder="Escreva um comentário..." 
+                        placeholder="Escreva um comentário sobre a aula..." 
                         className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-base text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[100px] resize-y"
                     />
                     <div className="flex justify-end mt-2">
@@ -173,7 +209,6 @@ function ArticleDetail() {
                 </div>
             </div>
 
-            {/* Lista */}
             <div className="space-y-6">
               {comments.map(c => (
                 <div key={c._id} className="flex gap-4">
@@ -191,7 +226,6 @@ function ArticleDetail() {
                              {c.userLiked ? <FaHeart /> : <FaRegHeart />} 
                              {c.upvotes > 0 ? `${c.upvotes} Curtir` : 'Curtir'}
                         </button>
-                        <button className="hover:text-purple-600 dark:hover:text-purple-400">Responder</button>
                         <span>{new Date(c.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -201,6 +235,48 @@ function ArticleDetail() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Certificado */}
+      {showCertificate && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+              <div className="bg-white dark:bg-gray-900 w-full max-w-3xl rounded-[2rem] p-1 shadow-2xl overflow-hidden">
+                <div className="border-[12px] border-double border-purple-600/20 rounded-[1.8rem] p-6 md:p-10 relative">
+                    <button onClick={() => setShowCertificate(false)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <FaTimes size={24}/>
+                    </button>
+                    
+                    <div className="text-center">
+                        <FaAward size={80} className="text-purple-600 mx-auto mb-6" />
+                        <h2 className="text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-purple-600 mb-8">Certificado de Conclusão</h2>
+                        
+                        <p className="text-gray-500 dark:text-gray-400 font-serif italic mb-2">Certificamos que o aluno(a)</p>
+                        <h3 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-10 decoration-purple-600 decoration-4 underline-offset-8 underline">
+                            {user?.fullName}
+                        </h3>
+                        
+                        <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-md mx-auto leading-relaxed mb-12">
+                            Concluiu com êxito o estudo do material pedagógico <strong className="text-gray-900 dark:text-white">"{article.headline}"</strong>, lecionado por <strong>{article.writer?.fullName}</strong> na plataforma EDUConnect em {new Date().toLocaleDateString()}.
+                        </p>
+
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-gray-100 dark:border-gray-800">
+                            <div className="text-left">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Assinatura Digital</p>
+                                <p className="font-mono text-[10px] text-purple-500 font-bold">{generateAuthHash()}</p>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-400">
+                                <FaShieldAlt />
+                                <span className="text-[9px] font-bold uppercase">Autenticado via EDUConnect</span>
+                            </div>
+                            <div className="text-center">
+                                <div className="h-0.5 w-32 bg-gray-200 mb-2"></div>
+                                <p className="text-[10px] font-bold text-gray-500 uppercase">{article.writer?.fullName}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+          </div>
+      )}
     </div>
   );
 }

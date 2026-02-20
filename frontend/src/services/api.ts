@@ -1,11 +1,8 @@
-
 import { User, Article, Comment, LoginResponse, ApiResponse } from "../types";
 
 // Acesso Seguro a Variáveis de Ambiente
 const getEnvVar = (key: string) => {
   try {
-    // Verificar ambiente Vite/ESM
-    // Converter import.meta para any para evitar erro TS: Property 'env' does not exist on type 'ImportMeta'
     if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env[key]) {
       return (import.meta as any).env[key];
     }
@@ -15,13 +12,12 @@ const getEnvVar = (key: string) => {
   return undefined;
 };
 
-// Usar a URL do backend hospedado por padrão
-// Se VITE_API_URL for fornecida no .env, usar essa (ex: para overrides de dev local)
+// URL da API
 const API_URL = getEnvVar('VITE_API_URL') 
   ? `${getEnvVar('VITE_API_URL')}/api`
   : "https://backend-techchalenge-main.onrender.com/api";
 
-// Auxiliar para obter headers com token JWT
+// Headers com Token JWT
 const getHeaders = () => {
   const userStr = localStorage.getItem("user");
   const token = userStr ? JSON.parse(userStr).token : null;
@@ -31,12 +27,11 @@ const getHeaders = () => {
   };
 };
 
-// Função auxiliar para tratar respostas da API e erros HTTP
+// Helper para tratar respostas
 async function handleResponse<T>(promise: Promise<Response>): Promise<T> {
   const res = await promise;
-  
-  // Verificar se a resposta é JSON
   const contentType = res.headers.get("content-type");
+
   if (contentType && contentType.indexOf("application/json") !== -1) {
     const json = await res.json();
     if (!res.ok) {
@@ -44,19 +39,39 @@ async function handleResponse<T>(promise: Promise<Response>): Promise<T> {
     }
     return json;
   } else {
-    // Se não for JSON, provavelmente é uma página de erro HTML (404/500 do proxy ou servidor)
+    // Tratamento para erros que não são JSON (ex: 404/500 do servidor web)
     const text = await res.text();
-    console.error("Resposta API não-JSON:", text.substring(0, 200)); // Logar primeiros 200 chars
-    throw new Error(`Erro na API (${res.status}): A resposta não é JSON. Verifique a conexão com ${API_URL}`);
+    console.error("Resposta API não-JSON:", text.substring(0, 200)); 
+    throw new Error(`Erro na API (${res.status}): A resposta não é JSON.`);
   }
 }
 
-// Serviço responsável pelas chamadas relacionadas à autenticação e usuários
-export const authService = {
-  async login(email: string): Promise<LoginResponse> {
-    return this.loginWithPassword(email, "123456");
+// --- NOVO: Serviço de IA (Trazido da versão "Depois") ---
+export const aiService = {
+  async getSuggestions(headline: string, body: string): Promise<ApiResponse<string>> {
+    return handleResponse<ApiResponse<string>>(
+      fetch(`${API_URL}/ai/suggestions`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({ headline, body })
+      })
+    );
   },
-  
+  async analyzeDoubts(articleId: string): Promise<ApiResponse<string>> {
+    return handleResponse<ApiResponse<string>>(
+      fetch(`${API_URL}/ai/analyze-doubts`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({ articleId })
+      })
+    );
+  }
+};
+
+// --- Serviço de Autenticação e Usuários ---
+export const authService = {
+  // Nota: Removi o método 'login' inseguro que usava senha fixa "123456"
+
   async loginWithPassword(email: string, password: string): Promise<LoginResponse> {
     return handleResponse<LoginResponse>(
       fetch(`${API_URL}/users/login`, {
@@ -93,6 +108,7 @@ export const authService = {
     );
   },
 
+  // Mantido da versão "Antes" (faltava na "Depois")
   async changePassword(currentPassword: string, newPassword: string): Promise<ApiResponse<void>> {
     return handleResponse<ApiResponse<void>>(
       fetch(`${API_URL}/users/password`, {
@@ -103,7 +119,7 @@ export const authService = {
     );
   },
 
-  // Métodos de Admin
+  // Métodos de Admin (Mantidos da versão "Antes")
   async getAllUsers(role?: string): Promise<ApiResponse<User[]>> {
     const url = role ? `${API_URL}/users?role=${role}` : `${API_URL}/users`;
     return handleResponse<ApiResponse<User[]>>(
@@ -141,7 +157,7 @@ export const authService = {
   }
 };
 
-// Serviço responsável pelas chamadas relacionadas aos artigos
+// --- Serviço de Artigos ---
 export const articleService = {
   async getArticles(search?: string): Promise<ApiResponse<Article[]>> {
     const url = search 
@@ -165,32 +181,15 @@ export const articleService = {
     );
   },
 
-  async getArticlesByAuthor(userId: string): Promise<ApiResponse<Article[]>> {
-    // Buscar todos os artigos (com um limite maior) e filtrar no cliente, pois
-    // o endpoint do backend para filtragem por autor pode não estar exposto diretamente.
-    const res = await fetch(`${API_URL}/articles?limit=100`, { headers: getHeaders() });
-    
-    // Verificação manual aqui porque processamos os dados antes de retornar
-    const contentType = res.headers.get("content-type");
-    if (!contentType || contentType.indexOf("application/json") === -1) {
-        throw new Error("Erro API: Resposta não é JSON.");
-    }
-
-    const json = await res.json();
-    
-    if (!res.ok) {
-       throw new Error(json.message || `Erro HTTP ${res.status}`);
-    }
-
-    if (json.success && Array.isArray(json.data)) {
-      const filtered = json.data.filter((a: Article) => 
-        (typeof a.writer === 'string' ? a.writer === userId : a.writer._id === userId)
-      );
-      return { success: true, data: filtered };
-    }
-    return json as ApiResponse<Article[]>;
+  // MELHORIA: Usando a lógica da versão "Depois" (filtro no servidor), 
+  // mas mantendo a assinatura correta.
+  async getArticlesByAuthor(authorId: string): Promise<ApiResponse<Article[]>> {
+    return handleResponse<ApiResponse<Article[]>>(
+      fetch(`${API_URL}/articles?writer=${authorId}`, { headers: getHeaders() })
+    );
   },
 
+  // Mantida tipagem forte da versão "Antes"
   async createArticle(articleData: Pick<Article, 'headline' | 'summary' | 'body' | 'tags' | 'imageUrl'>, user: User): Promise<ApiResponse<Article>> {
     return handleResponse<ApiResponse<Article>>(
       fetch(`${API_URL}/articles`, {
@@ -211,6 +210,7 @@ export const articleService = {
     );
   },
 
+  // Mantido da versão "Antes" (faltava na "Depois")
   async deleteArticle(id: string): Promise<ApiResponse<void>> {
     return handleResponse<ApiResponse<void>>(
       fetch(`${API_URL}/articles/${id}`, {
@@ -230,7 +230,7 @@ export const articleService = {
   }
 };
 
-// Serviço responsável pelas chamadas relacionadas aos comentários
+// --- Serviço de Comentários ---
 export const commentService = {
   async getCommentsByArticle(id: string): Promise<ApiResponse<Comment[]>> {
     return handleResponse<ApiResponse<Comment[]>>(
@@ -248,6 +248,7 @@ export const commentService = {
     );
   },
 
+  // Mantido da versão "Antes" (faltava na "Depois")
   async toggleCommentLike(id: string): Promise<ApiResponse<{ upvotes: number, liked: boolean }>> {
     return handleResponse<ApiResponse<{ upvotes: number, liked: boolean }>>(
       fetch(`${API_URL}/reviews/${id}/like`, {
@@ -257,6 +258,7 @@ export const commentService = {
     );
   },
 
+  // Mantido da versão "Antes" (faltava na "Depois")
   async deleteComment(id: string): Promise<ApiResponse<void>> {
     return handleResponse<ApiResponse<void>>(
       fetch(`${API_URL}/reviews/${id}`, {

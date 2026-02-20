@@ -1,7 +1,7 @@
 
 import React from "react";
 import Layout from "../components/Layout";
-import useAuth from "../hooks/useAuth";
+import { useAuth } from "../context/AuthContext";
 import { FaCog, FaBook, FaSignOutAlt, FaChevronRight, FaUsers, FaIdCard, FaChalkboardTeacher } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import { useAuth } from "../context/AuthContext";
 import { Article } from "../types";
 import { articleService } from "../services/api";
 import { FaArrowLeft, FaRegHeart, FaRegCommentDots, FaPen, FaPlus } from "react-icons/fa";

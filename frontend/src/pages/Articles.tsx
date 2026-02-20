@@ -4,7 +4,7 @@ import Layout from "../components/Layout";
 import { Article } from "../types";
 import { articleService } from "../services/api";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import { useAuth } from "../context/AuthContext";
 import { FaSearch, FaRegHeart, FaRegCommentDots, FaFilter, FaPlus } from "react-icons/fa";
 
 function Articles() {

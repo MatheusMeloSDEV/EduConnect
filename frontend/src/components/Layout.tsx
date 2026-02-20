@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaHome, FaUser, FaCompass, FaGraduationCap, FaPen, FaCog } from "react-icons/fa";
-import useAuth from "../hooks/useAuth";
+import { useAuth } from "../context/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;

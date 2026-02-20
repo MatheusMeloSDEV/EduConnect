@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -25,11 +24,13 @@ app.use(morgan('dev'));
 const userRoutes = require('./routes/userRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const aiRoutes = require('./routes/aiRoutes'); // ✅ ADICIONADO: Nova importação da IA
 
 // Rotas da API
 app.use('/api/users', userRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/ai', aiRoutes); // ✅ ADICIONADO: Nova rota da IA
 
 // Rota de Upload Simulado
 app.post('/api/upload/image', (req, res) => {
@@ -51,7 +52,8 @@ app.get('/', (req, res) => {
     endpoints: {
       health: "/api/health",
       users: "/api/users",
-      articles: "/api/articles"
+      articles: "/api/articles",
+      ai: "/api/ai" // Atualizado para mostrar a rota de IA
     }
   });
 });

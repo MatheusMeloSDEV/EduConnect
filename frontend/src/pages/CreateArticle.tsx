@@ -1,17 +1,21 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
-import useAuth from "../hooks/useAuth";
-import { articleService } from "../services/api";
-import { FaArrowLeft, FaCheck, FaImage } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext"; // Importação corrigida!
+import { articleService, aiService } from "../services/api";
+import { FaArrowLeft, FaCheck, FaImage, FaMagic, FaRobot } from "react-icons/fa";
 
 function CreateArticle() {
   const navigate = useNavigate();
-  const { id } = useParams(); // Verificar se estamos no modo de edição
+  const { id } = useParams();
   const { user } = useAuth();
+  
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Estados da IA
+  const [aiLoading, setAiLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     headline: "",
@@ -22,7 +26,6 @@ function CreateArticle() {
   });
 
   useEffect(() => {
-    // Atualizar título da página (aba do navegador)
     document.title = id ? "Editar Artigo | EDUConnect" : "Novo Artigo | EDUConnect";
 
     if (user && user.role !== 'professor') {
@@ -58,12 +61,29 @@ function CreateArticle() {
   };
 
   const handleBack = () => {
-     // Navegar explicitamente com base no contexto para evitar ficar preso
-     if (isEditing && id) {
-         navigate(`/articles/${id}`);
-     } else {
-         navigate('/articles');
-     }
+      if (isEditing && id) {
+          navigate(`/articles/${id}`);
+      } else {
+          navigate('/articles');
+      }
+  };
+
+  // Função nova da IA
+  const handleGetAiSuggestions = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Evita dar submit no formulário sem querer
+    if (!formData.headline || formData.body.length < 20) {
+      alert("Escreva o título e um pouco do conteúdo primeiro para que a IA possa analisar.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await aiService.getSuggestions(formData.headline, formData.body);
+      setSuggestions(res.data);
+    } catch (error) {
+      alert("Erro ao contatar o assistente de IA.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,8 +110,6 @@ function CreateArticle() {
         targetId = res.data._id;
       }
 
-      // Usar replace: true para evitar que a pilha de histórico cresça com a página 'Edit'
-      // Isso garante que 'Voltar' da página de Detalhe vá para a Lista, não de volta para Editar.
       navigate(`/articles/${targetId}`, { replace: true });
     } catch (error) {
       console.error(error);
@@ -105,104 +123,134 @@ function CreateArticle() {
 
   return (
     <Layout>
-      <div className="p-6">
-        <div className="flex items-center gap-4 mb-8">
-            <button 
-                onClick={handleBack} 
-                className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
-            >
-                <FaArrowLeft />
-            </button>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-                {isEditing ? "Editar Artigo" : "Novo Artigo"}
-            </h1>
-        </div>
+      <div className="p-6 md:flex gap-8 max-w-7xl mx-auto">
+        
+        {/* Lado Esquerdo: Formulário */}
+        <div className="flex-1">
+            <div className="flex items-center gap-4 mb-8">
+                <button 
+                    onClick={handleBack} 
+                    className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
+                >
+                    <FaArrowLeft />
+                </button>
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+                    {isEditing ? "Editar Artigo" : "Novo Artigo"}
+                </h1>
+            </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-4xl mx-auto">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Título */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Título</label>
-                <input
-                  name="headline"
-                  value={formData.headline}
-                  onChange={handleChange}
-                  placeholder="Ex: Introdução ao Python"
-                  className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold"
-                  required
-                />
-              </div>
-
-              {/* URL da Imagem */}
-              <div>
-                 <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">URL da Imagem de Capa</label>
-                 <div className="relative">
-                    <FaImage className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Título */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Título</label>
                     <input
-                      name="imageUrl"
-                      value={formData.imageUrl}
+                      name="headline"
+                      value={formData.headline}
                       onChange={handleChange}
-                      placeholder="https://..."
-                      className="w-full bg-gray-50 dark:bg-gray-700 pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="Ex: Introdução ao Python"
+                      className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold"
                       required
                     />
-                 </div>
-              </div>
+                  </div>
 
-              {/* Resumo */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Resumo</label>
-                <textarea
-                  name="summary"
-                  value={formData.summary}
-                  onChange={handleChange}
-                  placeholder="Uma breve descrição do conteúdo..."
-                  className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none"
-                  required
-                />
-              </div>
+                  {/* URL da Imagem */}
+                  <div>
+                     <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">URL da Imagem de Capa</label>
+                     <div className="relative">
+                        <FaImage className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          name="imageUrl"
+                          value={formData.imageUrl}
+                          onChange={handleChange}
+                          placeholder="https://..."
+                          className="w-full bg-gray-50 dark:bg-gray-700 pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          required
+                        />
+                     </div>
+                  </div>
 
-              {/* Conteúdo */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Conteúdo</label>
-                <textarea
-                  name="body"
-                  value={formData.body}
-                  onChange={handleChange}
-                  placeholder="Escreva seu artigo aqui..."
-                  className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-64 resize-none"
-                  required
-                />
-              </div>
+                  {/* Resumo */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Resumo</label>
+                    <textarea
+                      name="summary"
+                      value={formData.summary}
+                      onChange={handleChange}
+                      placeholder="Uma breve descrição do conteúdo..."
+                      className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none"
+                      required
+                    />
+                  </div>
 
-              {/* Tags */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Tags (Separadas por vírgula)</label>
-                <input
-                  name="tags"
-                  value={formData.tags}
-                  onChange={handleChange}
-                  placeholder="Ex: Programação, Tech, Dicas"
-                  className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
+                  {/* Conteúdo */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Conteúdo Pedagógico</label>
+                    <textarea
+                      name="body"
+                      value={formData.body}
+                      onChange={handleChange}
+                      placeholder="Escreva seu artigo aqui..."
+                      className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-64 resize-none"
+                      required
+                    />
+                  </div>
 
-              {/* Botão de Envio */}
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-purple-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-70"
-                >
-                  {loading ? "Carregando..." : (
-                    <>
-                      <FaCheck /> {isEditing ? "Salvar Alterações" : "Publicar Artigo"}
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Tags (Separadas por vírgula)</label>
+                    <input
+                      name="tags"
+                      value={formData.tags}
+                      onChange={handleChange}
+                      placeholder="Ex: Programação, Tech, Dicas"
+                      className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  {/* Botão de Envio */}
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-purple-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-70"
+                    >
+                      {loading ? "Carregando..." : (
+                        <>
+                          <FaCheck /> {isEditing ? "Salvar Alterações" : "Publicar Artigo"}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+            </div>
         </div>
+
+        {/* Lado Direito: Sidebar IA */}
+        <div className="w-full md:w-80 mt-8 md:mt-0">
+            <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl sticky top-24">
+                <div className="flex items-center gap-2 mb-4">
+                    <FaRobot className="animate-bounce" />
+                    <h3 className="font-bold">Assistente IA</h3>
+                </div>
+                <p className="text-xs text-purple-100 mb-6">Analiso seu texto e sugiro materiais extras e questões para seus alunos.</p>
+                
+                <button 
+                    onClick={handleGetAiSuggestions}
+                    disabled={aiLoading}
+                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {aiLoading ? "Analisando..." : <><FaMagic /> Sugerir Materiais</>}
+                </button>
+
+                {suggestions && (
+                    <div className="mt-6 p-4 bg-white/10 rounded-xl text-sm leading-relaxed animate-fade-in whitespace-pre-wrap shadow-inner overflow-y-auto max-h-[50vh]">
+                        {suggestions}
+                    </div>
+                )}
+            </div>
+        </div>
+        
       </div>
     </Layout>
   );

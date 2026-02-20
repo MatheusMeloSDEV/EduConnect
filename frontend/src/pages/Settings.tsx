@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import { useAuth } from "../context/AuthContext";
 import { authService } from "../services/api";
 import { FaArrowLeft, FaSave, FaUser, FaBuilding, FaMoon, FaSun, FaImage, FaPlus, FaTimes, FaBook } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
