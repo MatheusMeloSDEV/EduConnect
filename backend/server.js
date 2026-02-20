@@ -24,7 +24,7 @@ app.use(morgan('dev'));
 const userRoutes = require('./routes/userRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
-const aiRoutes = require('./routes/aiRoutes'); // ✅ ADICIONADO: Nova importação da IA
+const aiRoutes = require('./routes/aiRoutes.js'); // ✅ ADICIONADO: Nova importação da IA
 
 // Rotas da API
 app.use('/api/users', userRoutes);
