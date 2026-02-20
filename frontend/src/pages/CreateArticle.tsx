@@ -244,7 +244,7 @@ function CreateArticle() {
                 </button>
 
                 {suggestions && (
-                    <div className="mt-6 p-4 bg-white/10 rounded-xl text-sm leading-relaxed animate-fade-in whitespace-pre-wrap shadow-inner overflow-y-auto max-h-[50vh]">
+                    <div className="mt-6 p-4 bg-white/10 rounded-xl text-sm leading-relaxed animate-fade-in whitespace-pre-wrap shadow-inner overflow-y-auto max-h-[50vh] select-text">
                         {suggestions}
                     </div>
                 )}
