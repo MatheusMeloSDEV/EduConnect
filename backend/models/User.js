@@ -91,6 +91,7 @@ const userSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
+    suppressReservedKeysWarning: true // ✅ ADICIONE ESTA LINHA
   }
 );
 
