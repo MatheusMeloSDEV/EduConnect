@@ -22,7 +22,7 @@ function AdminDashboard() {
 
   // Estados da IA
   const [insight, setInsight] = useState<{id: string, text: string} | null>(null);
-  const [insightLoading, setInsightLoading] = useState(false);
+  const [loadingArticleId, setLoadingArticleId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user && user.role !== 'professor') {
@@ -66,14 +66,14 @@ function AdminDashboard() {
 
   // Função nova da IA
   const handleAnalyzeDoubts = async (articleId: string) => {
-    setInsightLoading(true);
+    setLoadingArticleId(articleId); // Dizemos ao React QUAL botão está carregando
     try {
         const res = await aiService.analyzeDoubts(articleId);
         setInsight({ id: articleId, text: res.data });
     } catch (e) {
         alert("Erro ao analisar dúvidas com a IA.");
     } finally {
-        setInsightLoading(false);
+        setLoadingArticleId(null); // Limpamos o carregamento no final
     }
   };
 
@@ -153,10 +153,10 @@ function AdminDashboard() {
                                     {/* Botão da IA Adicionado Aqui */}
                                     <button 
                                         onClick={() => handleAnalyzeDoubts(article._id)}
-                                        disabled={insightLoading}
-                                        className="bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-purple-100 transition-all"
+                                        disabled={loadingArticleId !== null} // Desabilita todos os botões da lista enquanto 1 carrega
+                                        className="bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-purple-100 transition-all disabled:opacity-50 disabled:cursor-wait"
                                     >
-                                        <FaRobot /> {insightLoading && insight?.id === article._id ? "Analisando..." : "Dúvidas IA"}
+                                        <FaRobot /> {loadingArticleId === article._id ? "Analisando..." : "Dúvidas IA"}
                                     </button>
 
                                     <button onClick={() => navigate(`/articles/edit/${article._id}`)} className="p-2 text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40">

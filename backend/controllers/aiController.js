@@ -20,7 +20,7 @@ exports.generateSuggestions = async (req, res) => {
 2. Links Úteis: Sugira 3 links de fontes confiáveis (BBC, G1, Khan Academy, Nova Escola, etc) sobre o tema.
 3. Questões: 2 questões de vestibular/ENEM relacionadas ao assunto, incluindo o gabarito.
 
-REGRA ESTRITA: Retorne APENAS o conteúdo solicitado, separado por títulos claros. Não inclua NENHUMA saudação, introdução ou conclusão (como "Aqui está o resumo..."). Vá direto ao ponto.`,
+REGRA ESTRITA: Retorne APENAS o conteúdo solicitado, separado por títulos claros. Não inclua NENHUMA saudação, introdução ou conclusão (como "Aqui está o resumo..."). Vá direto ao ponto. NÃO USE formatação markdown, não use asteriscos e evite completamente o uso de negrito (**). Responda em texto puro.`,
     });
 
     res.json({ success: true, data: response.text });
@@ -51,7 +51,7 @@ exports.analyzeDoubts = async (req, res) => {
       model: "gemini-3-flash-preview",
       contents: `Analise estes comentários de alunos sobre uma aula: "${commentText}". Identifique as 3 principais dúvidas comuns e sugira ao professor como explicá-las melhor na próxima aula.
       
-REGRA ESTRITA: Retorne APENAS a análise solicitada. Não inclua NENHUMA saudação, introdução ou conclusão. Vá direto ao ponto.`,
+REGRA ESTRITA: Retorne APENAS a análise solicitada. Não inclua NENHUMA saudação, introdução ou conclusão. Vá direto ao ponto. NÃO USE formatação markdown, não use asteriscos e evite completamente o uso de negrito (**). Responda em texto puro.`,
     });
 
     res.json({ success: true, data: response.text });
