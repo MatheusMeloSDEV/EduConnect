@@ -27,4 +27,4 @@ const certificateSchema = new mongoose.Schema(
 // Índice único: Um usuário só pode ter UM certificado por artigo
 certificateSchema.index({ user: 1, article: 1 }, { unique: true });
 
-module.exports = mongoose.model("certificate", certificateSchema);
+module.exports = mongoose.model("Certificate", certificateSchema);
