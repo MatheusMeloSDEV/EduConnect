@@ -5,12 +5,13 @@ exports.markAsCompleted = async (req, res) => {
   try {
     const { articleId } = req.params;
     
-    // Suporte para os dois formatos de ID comuns no JWT
-    const userId = req.user.id || req.user._id; 
+// Substitua em TODAS as 3 funções do controller:
+const userId = req.user?.id || req.user?._id || req.user?.userId;
 
-    if (!userId) {
-        return res.status(401).json({ success: false, message: "Usuário não autenticado." });
-    }
+if (!userId) {
+    console.error("🚨 ERRO DE TOKEN: Não achei o ID. O req.user tem isso dentro:", req.user);
+    return res.status(401).json({ success: false, message: "Usuário não autenticado. ID ausente no token." });
+}
 
     let certificate = await Certificate.findOne({ user: userId, article: articleId });
     
@@ -39,7 +40,13 @@ exports.markAsCompleted = async (req, res) => {
 exports.checkCompletion = async (req, res) => {
   try {
     const { articleId } = req.params;
-    const userId = req.user.id || req.user._id;
+    // Substitua em TODAS as 3 funções do controller:
+const userId = req.user?.id || req.user?._id || req.user?.userId;
+
+if (!userId) {
+    console.error("🚨 ERRO DE TOKEN: Não achei o ID. O req.user tem isso dentro:", req.user);
+    return res.status(401).json({ success: false, message: "Usuário não autenticado. ID ausente no token." });
+}
 
     const certificate = await Certificate.findOne({ user: userId, article: articleId });
     
@@ -54,7 +61,13 @@ exports.checkCompletion = async (req, res) => {
 // 3. Busca todos os certificados do aluno
 exports.getMyCertificates = async (req, res) => {
   try {
-    const userId = req.user.id || req.user._id;
+    // Substitua em TODAS as 3 funções do controller:
+const userId = req.user?.id || req.user?._id || req.user?.userId;
+
+if (!userId) {
+    console.error("🚨 ERRO DE TOKEN: Não achei o ID. O req.user tem isso dentro:", req.user);
+    return res.status(401).json({ success: false, message: "Usuário não autenticado. ID ausente no token." });
+}
     
     const certificates = await Certificate.find({ user: userId })
       .populate({
