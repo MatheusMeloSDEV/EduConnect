@@ -12,6 +12,7 @@ import ArticleDetail from "./pages/ArticleDetail";
 import Profile from "./pages/Profile";
 import CreateArticle from "./pages/CreateArticle";
 import MyArticles from "./pages/MyArticles";
+import MyCertificates from './pages/MyCertificates'; // (Ajuste o caminho se necessário)
 import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUserForm from "./pages/AdminUserForm";
@@ -43,6 +44,7 @@ function AppRoutes() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/profile/articles" element={<ProtectedRoute><MyArticles /></ProtectedRoute>} />
         <Route path="/profile/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/profile/certificates" element={<MyCertificates />} />
         
         {/* Rotas Administrativas */}
         <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />

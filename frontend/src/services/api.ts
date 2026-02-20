@@ -268,3 +268,31 @@ export const commentService = {
     );
   }
 };
+
+// --- Serviço de Certificados ---
+export const certificateService = {
+  async markAsCompleted(articleId: string): Promise<ApiResponse<{ certificate: any }>> {
+    return handleResponse<ApiResponse<{ certificate: any }>>(
+      fetch(`${API_URL}/certificates/${articleId}/complete`, {
+        method: "POST",
+        headers: getHeaders()
+      })
+    );
+  },
+
+  async checkCompletion(articleId: string): Promise<ApiResponse<{ completed: boolean, certificate?: any }>> {
+    return handleResponse<ApiResponse<{ completed: boolean, certificate?: any }>>(
+      fetch(`${API_URL}/certificates/${articleId}/check`, {
+        headers: getHeaders()
+      })
+    );
+  },
+
+  async getMyCertificates(): Promise<ApiResponse<any[]>> {
+    return handleResponse<ApiResponse<any[]>>(
+      fetch(`${API_URL}/certificates/user/my-certificates`, {
+        headers: getHeaders()
+      })
+    );
+  }
+};

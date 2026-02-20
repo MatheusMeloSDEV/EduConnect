@@ -1,24 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Article, Comment } from "../types";
-import { articleService, commentService } from "../services/api";
-import { FaArrowLeft, FaHeart, FaRegHeart, FaPaperPlane, FaPen, FaCheckCircle, FaAward, FaShieldAlt, FaTimes } from "react-icons/fa";
-import { useAuth } from "../context/AuthContext"; // Importação correta!
+import { certificateService, articleService, commentService } from "../services/api";
+import { FaArrowLeft, FaHeart, FaRegHeart, FaPaperPlane, FaPen, FaCheckCircle, FaAward, FaShieldAlt, FaTimes, FaDownload } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
+import html2canvas from "html2canvas";
 
 function ArticleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   
+  // Ref para o certificado (usado para o Download)
+  const certificateRef = useRef<HTMLDivElement>(null);
+
   // Estados do Artigo e Comentários
   const [article, setArticle] = useState<Article | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [liked, setLiked] = useState(false);
   const [commentText, setCommentText] = useState("");
   
-  // Estados do Certificado (Novidade)
+  // Estados do Certificado
   const [completed, setCompleted] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
+  const [authHash, setAuthHash] = useState(""); // Vem do banco de dados agora!
 
   useEffect(() => {
     if (id) {
@@ -27,8 +32,31 @@ function ArticleDetail() {
           setLiked(!!res.data.userUpvoted);
       });
       commentService.getCommentsByArticle(id).then(res => setComments(res.data));
+      
+      // ✅ VERIFICA SE JÁ CONCLUIU ANTES
+      if (user?.role === 'aluno') {
+        certificateService.checkCompletion(id).then(res => {
+          if (res.data.completed) {
+            setCompleted(true);
+            setAuthHash(res.data.certificate.authHash);
+          }
+        });
+      }
     }
-  }, [id]);
+  }, [id, user]);
+
+  // ✅ ÚNICA FUNÇÃO HANDLE COMPLETE (Salva no Banco)
+  const handleComplete = async () => {
+    if (!id) return;
+    try {
+      const res = await certificateService.markAsCompleted(id);
+      setCompleted(true);
+      setAuthHash(res.data.certificate.authHash);
+      setShowCertificate(true);
+    } catch (error) {
+      alert("Erro ao gerar certificado. Tente novamente.");
+    }
+  };
 
   const handleLike = () => {
     if (!article || !id) return;
@@ -46,7 +74,7 @@ function ArticleDetail() {
                 return { ...c, upvotes: res.data.upvotes, userLiked: res.data.liked };
             }
             return c;
-        }));
+        }))
     } catch (error) {
         console.error("Erro ao curtir comentário:", error);
     }
@@ -67,15 +95,26 @@ function ArticleDetail() {
     }
   };
 
-  // Funções do Certificado
-  const handleComplete = () => {
-    setCompleted(true);
-    setShowCertificate(true);
-    // TODO no futuro: await api.markAsCompleted(id)
-  };
-
-  const generateAuthHash = () => {
-      return "EDU-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + Date.now().toString().slice(-4);
+  // Função para Baixar Certificado
+  const handleDownloadCertificate = async () => {
+    if (!certificateRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(certificateRef.current, { 
+        scale: 2, 
+        backgroundColor: null,
+        useCORS: true // Essencial para imagens externas
+      });
+      
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = `Certificado-EDUConnect-${user?.fullName.split(' ')[0] || 'Aluno'}.png`;
+      link.click();
+    } catch (error) {
+      console.error("Erro ao baixar o certificado", error);
+      alert("Houve um erro ao gerar a imagem do certificado.");
+    }
   };
 
   if (!article) return <div className="p-10 text-center text-gray-500 dark:text-gray-400">Carregando conteúdo...</div>;
@@ -238,15 +277,32 @@ function ArticleDetail() {
 
       {/* Modal de Certificado */}
       {showCertificate && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+              
+              {/* Botões de Ação - Colocados FORA da área do certificado */}
+              <div className="w-full max-w-3xl flex justify-end gap-4 mb-4">
+                  <button 
+                    onClick={handleDownloadCertificate} 
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-colors shadow-lg"
+                  >
+                      <FaDownload /> Baixar PDF/Imagem
+                  </button>
+                  <button 
+                    onClick={() => setShowCertificate(false)} 
+                    className="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-colors backdrop-blur-md"
+                  >
+                      <FaTimes /> Fechar
+                  </button>
+              </div>
+
+              {/* Área do Certificado (Apenas isso será baixado) */}
               <div className="bg-white dark:bg-gray-900 w-full max-w-3xl rounded-[2rem] p-1 shadow-2xl overflow-hidden">
-                <div className="border-[12px] border-double border-purple-600/20 rounded-[1.8rem] p-6 md:p-10 relative">
-                    <button onClick={() => setShowCertificate(false)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                        <FaTimes size={24}/>
-                    </button>
+                <div ref={certificateRef} className="border-[12px] border-double border-purple-600/20 rounded-[1.8rem] p-6 md:p-10 relative bg-white dark:bg-gray-900">
                     
                     <div className="text-center">
-                        <FaAward size={80} className="text-purple-600 mx-auto mb-6" />
+                        <div className="flex justify-center mb-6">
+                            <FaAward style={{ width: '80px', height: '80px', color: '#9333ea' }} />
+                        </div>
                         <h2 className="text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-purple-600 mb-8">Certificado de Conclusão</h2>
                         
                         <p className="text-gray-500 dark:text-gray-400 font-serif italic mb-2">Certificamos que o aluno(a)</p>
@@ -261,10 +317,10 @@ function ArticleDetail() {
                         <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-gray-100 dark:border-gray-800">
                             <div className="text-left">
                                 <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Assinatura Digital</p>
-                                <p className="font-mono text-[10px] text-purple-500 font-bold">{generateAuthHash()}</p>
+                                <p className="font-mono text-[10px] text-purple-500 font-bold">{authHash}</p>
                             </div>
                             <div className="flex items-center gap-2 text-gray-400">
-                                <FaShieldAlt />
+                                <FaShieldAlt style={{ width: '14px', height: '14px', color: '#9ca3af' }} />
                                 <span className="text-[9px] font-bold uppercase">Autenticado via EDUConnect</span>
                             </div>
                             <div className="text-center">

@@ -25,12 +25,14 @@ const userRoutes = require('./routes/userRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const aiRoutes = require('./routes/aiRoutes.js'); // ✅ ADICIONADO: Nova importação da IA
+const certificateRoutes = require('./routes/certificateRoutes');
 
 // Rotas da API
 app.use('/api/users', userRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/ai', aiRoutes); // ✅ ADICIONADO: Nova rota da IA
+app.use('/api/certificates', certificateRoutes);
 
 // Rota de Upload Simulado
 app.post('/api/upload/image', (req, res) => {

@@ -1,8 +1,7 @@
-
 import React from "react";
 import Layout from "../components/Layout";
 import { useAuth } from "../context/AuthContext";
-import { FaCog, FaBook, FaSignOutAlt, FaChevronRight, FaUsers, FaIdCard, FaChalkboardTeacher } from "react-icons/fa";
+import { FaCog, FaBook, FaSignOutAlt, FaChevronRight, FaUsers, FaIdCard, FaChalkboardTeacher, FaAward } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 function Profile() {
@@ -82,22 +81,46 @@ function Profile() {
         </div>
 
         <div className="space-y-4">
-          <div 
-            onClick={() => navigate('/profile/articles')}
-            className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between active:scale-[0.98] transition cursor-pointer"
-          >
-            <div className="flex items-center gap-4">
-              <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl text-purple-600 dark:text-purple-400">
-                <FaBook />
+          
+          {/* Menu Professor: Meus Artigos */}
+          {isProfessor && (
+            <div 
+              onClick={() => navigate('/profile/articles')}
+              className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between active:scale-[0.98] transition cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl text-purple-600 dark:text-purple-400">
+                  <FaBook />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800 dark:text-white">Meus Artigos</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Gerenciar publicações</p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-gray-800 dark:text-white">Meus Artigos</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Gerenciar publicações</p>
-              </div>
+              <FaChevronRight className="text-gray-300 dark:text-gray-600" />
             </div>
-            <FaChevronRight className="text-gray-300 dark:text-gray-600" />
-          </div>
+          )}
 
+          {/* Menu Aluno: Meus Certificados */}
+          {!isProfessor && (
+            <div 
+              onClick={() => navigate('/profile/certificates')}
+              className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between active:scale-[0.98] transition cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-xl text-yellow-600 dark:text-yellow-400">
+                  <FaAward />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800 dark:text-white">Meus Certificados</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Conquistas de estudo</p>
+                </div>
+              </div>
+              <FaChevronRight className="text-gray-300 dark:text-gray-600" />
+            </div>
+          )}
+
+          {/* Botão Sair - Fica no final para todos */}
           <button 
             onClick={handleLogout}
             className="w-full bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between text-red-500 active:scale-[0.98] transition"
