@@ -19,7 +19,12 @@ exports.generateSuggestions = async (req, res) => {
 
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Com base no título "${headline}" e no conteúdo "${safeBody}", sugira 3 links de fontes confiáveis (BBC, G1, Khan Academy) e 2 questões de vestibular/ENEM relacionadas para complementar este material pedagógico. Retorne em formato amigável para professores.`,
+      contents: `Com base no título "${headline}" e no conteúdo "${safeBody}", atue como um assistente pedagógico e gere o seguinte material:
+1. Resumo: Um parágrafo curto e engajador (máximo de 3 linhas) resumindo o texto.
+2. Links Úteis: Sugira 3 links de fontes confiáveis (BBC, G1, Khan Academy, Nova Escola, etc) sobre o tema.
+3. Questões: 2 questões de vestibular/ENEM relacionadas ao assunto, incluindo o gabarito.
+
+REGRA ESTRITA: Retorne APENAS o conteúdo solicitado, separado por títulos claros. Não inclua NENHUMA saudação, introdução ou conclusão (como "Aqui está o resumo..."). Vá direto ao ponto.`,
     });
 
     res.json({ success: true, data: response.text });
@@ -50,11 +55,11 @@ exports.analyzeDoubts = async (req, res) => {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Com base no título "${headline}" e no conteúdo "${safeBody}", atue como um assistente pedagógico e gere o seguinte material:
-                1. Resumo: Um parágrafo curto e engajador (máximo de 3 linhas) resumindo o texto.
-                2. Links Úteis: Sugira 3 links de fontes confiáveis (BBC, G1, Khan Academy, Nova Escola, etc) sobre o tema.
-                3. Questões: 2 questões de vestibular/ENEM relacionadas ao assunto, incluindo o gabarito.
+1. Resumo: Um parágrafo curto e engajador (máximo de 3 linhas) resumindo o texto.
+2. Links Úteis: Sugira 3 links de fontes confiáveis (BBC, G1, Khan Academy, Nova Escola, etc) sobre o tema.
+3. Questões: 2 questões de vestibular/ENEM relacionadas ao assunto, incluindo o gabarito.
 
-                REGRA ESTRITA: Retorne APENAS o conteúdo solicitado, separado por títulos claros. Não inclua NENHUMA saudação, introdução ou conclusão (como "Aqui está o resumo..."). Vá direto ao ponto.`,
+REGRA ESTRITA: Retorne APENAS o conteúdo solicitado, separado por títulos claros. Não inclua NENHUMA saudação, introdução ou conclusão (como "Aqui está o resumo..."). Vá direto ao ponto.`,
     });
 
     res.json({ success: true, data: response.text });
